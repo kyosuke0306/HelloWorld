@@ -1,0 +1,46 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # デフォルトブランチへの push (修正) のたびに自動デプロイ
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build site with version info
+        run: |
+          mkdir -p _site
+          cp -r index.html manifest.webmanifest css js icons _site/
+          VERSION="1.0.${{ github.run_number }}"
+          COMMIT="${GITHUB_SHA::7}"
+          DEPLOYED_AT="$(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M:%S JST')"
+          echo "window.APP_VERSION = { version: '${VERSION}', commit: '${COMMIT}', deployedAt: '${DEPLOYED_AT}' };" > _site/version.js
+          # キャッシュ対策: CSS/JS の URL にバージョンを付ける
+          sed -i -E "s#(href|src)=\"(css/[^\"]+|js/[^\"]+|version\.js)\"#\1=\"\2?v=${VERSION}\"#g" _site/index.html
+          cat _site/version.js
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

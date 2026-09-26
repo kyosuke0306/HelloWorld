@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="いろいろなプログラミング言語で Hello World を出力する練習アプリ">
+  <title>Hello World 練習</title>
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- スタート画面 -->
+  <section id="start-screen" class="screen active">
+    <div class="start-inner">
+      <img src="icons/icon.svg" alt="" class="start-logo" width="96" height="96">
+      <h1>Hello World 練習</h1>
+      <p class="start-lead">言語を選んで、ターミナルとエディタで<br>「Hello World」を出力してみよう。</p>
+      <div class="lang-list">
+        <button class="lang-btn" data-lang="python">
+          <span class="lang-badge py">Py</span>
+          <span class="lang-name">Python</span>
+        </button>
+        <button class="lang-btn" data-lang="java">
+          <span class="lang-badge java">J</span>
+          <span class="lang-name">Java</span>
+        </button>
+        <button class="lang-btn" data-lang="c">
+          <span class="lang-badge c">C</span>
+          <span class="lang-name">C言語</span>
+        </button>
+      </div>
+      <p class="start-flow">ターミナルでファイルを作る → エディタで書く → ターミナルで実行</p>
+    </div>
+  </section>
+
+  <!-- 作業画面 -->
+  <section id="work-screen" class="screen">
+    <!-- エディタ (VS Code 風) -->
+    <div class="editor-window">
+      <div class="window-titlebar">
+        <button class="back-btn" id="back-btn" title="言語選択に戻る" aria-label="言語選択に戻る">
+          <svg viewBox="0 0 16 16" width="14" height="14"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        </button>
+        <span class="window-title" id="editor-title">project - Visual Studio Code</span>
+      </div>
+      <div class="editor-body">
+        <div class="activity-bar">
+          <svg viewBox="0 0 24 24" class="act-icon active"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          <svg viewBox="0 0 24 24" class="act-icon"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m20 20-4.5-4.5" stroke="currentColor" stroke-width="1.5"/></svg>
+          <svg viewBox="0 0 24 24" class="act-icon"><circle cx="6" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="18" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 8v8M18 10c0 4-6 3-10 7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        </div>
+        <div class="sidebar">
+          <div class="sidebar-title">エクスプローラー</div>
+          <div class="sidebar-section">
+            <svg viewBox="0 0 16 16" width="12" height="12"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+            PROJECT
+          </div>
+          <ul class="file-tree" id="file-tree"></ul>
+        </div>
+        <div class="editor-main">
+          <div class="tab-bar" id="tab-bar"></div>
+          <div class="breadcrumbs" id="breadcrumbs"></div>
+          <div class="editor-area" id="editor-area">
+            <div class="editor-empty" id="editor-empty">
+              <svg viewBox="0 0 24 24" width="64" height="64"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+              <p>ファイルが開かれていません</p>
+              <p class="dim">ターミナルでファイルを作成すると、ここに表示されます</p>
+            </div>
+            <div class="code-wrap" id="code-wrap" hidden>
+              <div class="gutter" id="gutter"></div>
+              <div class="code-scroll" id="code-scroll">
+                <pre class="code-highlight" id="code-highlight" aria-hidden="true"></pre>
+                <textarea class="code-input" id="code-input" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="status-bar">
+        <span class="sb-item sb-remote">&gt;&lt;</span>
+        <span class="sb-item">main</span>
+        <span class="sb-spacer"></span>
+        <span class="sb-item" id="sb-pos"></span>
+        <span class="sb-item">スペース: 4</span>
+        <span class="sb-item">UTF-8</span>
+        <span class="sb-item">LF</span>
+        <span class="sb-item" id="sb-lang"></span>
+        <span class="sb-item">自動保存: オン</span>
+      </div>
+    </div>
+
+    <!-- ターミナル -->
+    <div class="terminal-window">
+      <div class="window-titlebar term-titlebar">
+        <span class="dots"><i class="r"></i><i class="y"></i><i class="g"></i></span>
+        <span class="window-title">user@helloworld: ~/project</span>
+      </div>
+      <div class="terminal" id="terminal">
+        <div id="term-output"></div>
+        <div class="term-line term-input-line" id="term-input-line">
+          <span class="prompt" id="term-prompt"></span><span class="input-wrap"><input id="term-input" type="text" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="ターミナル入力"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 正解オーバーレイ -->
+  <div id="success-overlay" class="success-overlay" hidden>
+    <svg class="maru" viewBox="0 0 200 200" aria-hidden="true">
+      <circle cx="100" cy="100" r="80" />
+    </svg>
+    <div class="success-panel">
+      <p class="success-text">正解！</p>
+      <p class="success-sub" id="success-sub"></p>
+      <div class="success-actions">
+        <button id="again-btn">もう一度</button>
+        <button id="other-btn" class="primary">他の言語に挑戦</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="version-badge" class="version-badge"></div>
+
+  <script src="version.js"></script>
+  <script src="js/languages.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
