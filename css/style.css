@@ -54,16 +54,11 @@ button { font-family: inherit; }
   margin: 0 0 28px; color: #fff; text-align: left;
 }
 .start-inner h1 .t-prompt { color: var(--term-green); }
-.start-inner h1 .typed {
-  display: inline-block; overflow: hidden; white-space: nowrap;
-  width: 0; margin-left: .6ch;
-  animation: typing .9s steps(10, end) .3s forwards;
-}
+.start-inner h1 .typed { white-space: pre; margin-left: .6ch; }
 .start-inner h1 .cursor {
   display: inline-block; width: .6em; height: 1em; margin-left: 2px;
   background: #fff; animation: blink 1s steps(1) infinite;
 }
-@keyframes typing { to { width: 10ch; } }
 @keyframes blink { 50% { opacity: 0; } }
 .lang-list { display: flex; flex-direction: column; gap: 12px; }
 .lang-btn {

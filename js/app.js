@@ -33,6 +33,22 @@
   // ---------------------------------------------------------------------
   // 画面切り替え
   // ---------------------------------------------------------------------
+  // タイトルをターミナルで打ち込むように表示
+  function typeTitle() {
+    const el = document.querySelector('#start-screen .typed');
+    const text = 'HelloWorld';
+    el.textContent = '';
+    clearInterval(typeTitle.timer);
+    let i = 0;
+    setTimeout(() => {
+      typeTitle.timer = setInterval(() => {
+        el.textContent = text.slice(0, ++i);
+        if (i >= text.length) clearInterval(typeTitle.timer);
+      }, 90);
+    }, 300);
+  }
+  typeTitle();
+
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
   }
@@ -50,6 +66,7 @@
   function goHome() {
     showScreen('start-screen');
     state.lang = null;
+    typeTitle();
   }
 
   function startLang(lang) {
