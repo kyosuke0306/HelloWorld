@@ -33,7 +33,7 @@ jobs:
           DEPLOYED_AT="$(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M:%S JST')"
           echo "window.APP_VERSION = { version: '${VERSION}', commit: '${COMMIT}', deployedAt: '${DEPLOYED_AT}' };" > _site/version.js
           # キャッシュ対策: CSS/JS の URL にバージョンを付ける
-          sed -i -E "s#(href|src)=\"(css/[^\"]+|js/[^\"]+|version\.js)\"#\1=\"\2?v=${VERSION}\"#g" _site/index.html
+          sed -i -E "s#(href|src)=\"(css/[^\"]+|js/[^\"]+|icons/[^\"]+|manifest\.webmanifest|version\.js)\"#\1=\"\2?v=${VERSION}\"#g" _site/index.html
           cat _site/version.js
 
       - uses: actions/configure-pages@v5

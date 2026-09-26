@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#000"/>
+  <circle cx="72" cy="76" r="18" fill="#ff5f56"/>
+  <circle cx="126" cy="76" r="18" fill="#ffbd2e"/>
+  <circle cx="180" cy="76" r="18" fill="#27c93f"/>
+  <g font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-weight="bold" fill="#fff">
+    <text x="36" y="268" font-size="122">&gt;Hello</text>
+    <text x="36" y="412" font-size="122">World</text>
+  </g>
+  <rect x="408" y="322" width="64" height="104" fill="#fff"/>
+</svg>
