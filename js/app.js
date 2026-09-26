@@ -95,9 +95,54 @@
   // ---------------------------------------------------------------------
   // チュートリアル
   // ---------------------------------------------------------------------
-  $('tutorial-btn').addEventListener('click', () => { $('tutorial-body').scrollTop = 0; $('tutorial').hidden = false; });
-  $('tutorial-close').addEventListener('click', () => { $('tutorial').hidden = true; });
-  $('tutorial').addEventListener('click', e => { if (e.target === e.currentTarget) $('tutorial').hidden = true; });
+  // スライド形式
+  const tutBody = $('tutorial-body');
+  const slides = [...tutBody.querySelectorAll('section')];
+  const dotsEl = $('tut-dots');
+  let slideIdx = 0;
+  slides.forEach((sec, i) => {
+    sec.classList.add('slide');
+    const d = document.createElement('button');
+    d.className = 'tut-dot';
+    d.setAttribute('aria-label', `${i + 1}`);
+    d.addEventListener('click', () => goSlide(i));
+    dotsEl.appendChild(d);
+  });
+  function goSlide(i, dir) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    const from = slideIdx;
+    slideIdx = i;
+    slides.forEach((sec, k) => {
+      sec.classList.toggle('active', k === i);
+      sec.classList.remove('in-left', 'in-right');
+    });
+    if (dir !== 0 && from !== i) slides[i].classList.add(i > from ? 'in-right' : 'in-left');
+    [...dotsEl.children].forEach((d, k) => d.classList.toggle('active', k === i));
+    $('tut-prev').disabled = i === 0;
+    $('tut-next').textContent = i === slides.length - 1 ? 'Close' : 'Next';
+    tutBody.scrollTop = 0;
+  }
+  const closeTutorial = () => { $('tutorial').hidden = true; };
+  $('tut-prev').addEventListener('click', () => goSlide(slideIdx - 1));
+  $('tut-next').addEventListener('click', () => (slideIdx === slides.length - 1 ? closeTutorial() : goSlide(slideIdx + 1)));
+  // スワイプ
+  let swipeX = null, swipeY = 0;
+  tutBody.addEventListener('pointerdown', e => { swipeX = e.clientX; swipeY = e.clientY; });
+  tutBody.addEventListener('pointerup', e => {
+    if (swipeX === null) return;
+    const dx = e.clientX - swipeX, dy = e.clientY - swipeY;
+    swipeX = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) goSlide(slideIdx + (dx < 0 ? 1 : -1));
+  });
+  tutBody.addEventListener('pointercancel', () => { swipeX = null; });
+  document.addEventListener('keydown', e => {
+    if ($('tutorial').hidden) return;
+    if (e.key === 'ArrowRight') goSlide(slideIdx + 1);
+    if (e.key === 'ArrowLeft') goSlide(slideIdx - 1);
+  });
+  $('tutorial-btn').addEventListener('click', () => { goSlide(0, 0); $('tutorial').hidden = false; });
+  $('tutorial-close').addEventListener('click', closeTutorial);
+  $('tutorial').addEventListener('click', e => { if (e.target === e.currentTarget) closeTutorial(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') $('tutorial').hidden = true; });
 
   // ---------------------------------------------------------------------

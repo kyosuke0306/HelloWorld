@@ -656,3 +656,31 @@ body.vkbd-on.on-work .version-badge { display: none; }
 .pa-text { font-size: clamp(12px, 3.4vw, 16px); padding: 0 1px 3px; border-bottom: 2px solid rgba(255, 255, 255, .25); color: #fff; }
 .pa-part:nth-child(3) .pa-text { border-bottom-color: transparent; }
 .pa-cap { margin-top: 4px; font-family: var(--ui); font-size: 9px; color: #bbb; white-space: nowrap; padding: 0 2px; }
+
+/* ---------- チュートリアル: スライド ---------- */
+.tutorial-panel { height: min(640px, 100%); }
+.tutorial-body { flex: 1; touch-action: pan-y; }
+.tutorial-body section.slide { display: none; margin-bottom: 0; }
+.tutorial-body section.slide.active { display: block; }
+.tutorial-body section.in-right { animation: slide-in-r .25s ease-out; }
+.tutorial-body section.in-left { animation: slide-in-l .25s ease-out; }
+@keyframes slide-in-r { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@keyframes slide-in-l { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+.tutorial-nav {
+  flex: none; display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  border-top: 1px solid #2a2a2a;
+}
+.tut-dots { flex: 1; display: flex; justify-content: center; gap: 7px; flex-wrap: wrap; }
+.tut-dot {
+  width: 7px; height: 7px; padding: 0; border: none; border-radius: 999px;
+  background: #444; cursor: pointer; transition: width .2s, background .2s;
+}
+.tut-dot.active { width: 20px; background: #3b82f6; }
+.tut-prev, .tut-next {
+  min-width: 84px; padding: 9px 16px; border-radius: 999px; cursor: pointer;
+  font-family: var(--mono); font-size: 14px; font-weight: bold;
+}
+.tut-prev { background: transparent; color: #ccc; border: 1px solid #444; }
+.tut-prev:disabled { opacity: .3; cursor: default; }
+.tut-next { background: #3b82f6; color: #fff; border: 1px solid #3b82f6; }
