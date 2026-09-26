@@ -94,44 +94,9 @@
   // ---------------------------------------------------------------------
   // チュートリアル
   // ---------------------------------------------------------------------
-  const TUTORIAL = {
-    python: {
-      steps: [
-        ['ターミナルでファイルを作る', 'touch hello.py'],
-        ['エディタでコードを書く', 'print("Hello World")'],
-        ['ターミナルで実行する', 'python3 hello.py'],
-      ],
-    },
-    java: {
-      steps: [
-        ['ターミナルでファイルを作る (ファイル名とクラス名を同じにする)', 'touch Hello.java'],
-        ['エディタでコードを書く', 'public class Hello {\n    public static void main(String[] args) {\n        System.out.println("Hello World");\n    }\n}'],
-        ['ターミナルでコンパイルする (Hello.class ができる)', 'javac Hello.java'],
-        ['ターミナルで実行する (.class は付けない)', 'java Hello'],
-      ],
-    },
-    c: {
-      steps: [
-        ['ターミナルでファイルを作る', 'touch hello.c'],
-        ['エディタでコードを書く', '#include <stdio.h>\n\nint main(void) {\n    printf("Hello World\\n");\n    return 0;\n}'],
-        ['ターミナルでコンパイルする (a.out ができる)', 'gcc hello.c'],
-        ['ターミナルで実行する (./ を付ける)', './a.out'],
-      ],
-    },
-  };
-  function renderTutorial(lang) {
-    document.querySelectorAll('.tutorial-tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === lang));
-    const hl = { python: 'py', java: 'java', c: 'c' }[lang];
-    $('tutorial-body').innerHTML = '<ol class="tutorial-steps">' + TUTORIAL[lang].steps.map(([label, code], i) => {
-      const isEditor = label.startsWith('エディタ');
-      const codeHTML = isEditor ? HW.highlight[hl](code) : `<span class="p-user">$</span> ${esc(code)}`;
-      return `<li><p>${esc(label)}</p><pre class="${isEditor ? 'tut-editor' : 'tut-term'}">${codeHTML}</pre></li>`;
-    }).join('') + '</ol><p class="tutorial-note">正しく出力できたらクリア！ 選んだ瞬間からタイムを計測します。</p>';
-  }
-  $('tutorial-btn').addEventListener('click', () => { renderTutorial('python'); $('tutorial').hidden = false; });
+  $('tutorial-btn').addEventListener('click', () => { $('tutorial-body').scrollTop = 0; $('tutorial').hidden = false; });
   $('tutorial-close').addEventListener('click', () => { $('tutorial').hidden = true; });
   $('tutorial').addEventListener('click', e => { if (e.target === e.currentTarget) $('tutorial').hidden = true; });
-  document.querySelectorAll('.tutorial-tabs button').forEach(b => b.addEventListener('click', () => renderTutorial(b.dataset.tab)));
   document.addEventListener('keydown', e => { if (e.key === 'Escape') $('tutorial').hidden = true; });
 
   function showScreen(id) {

@@ -140,12 +140,51 @@
         <h2 id="tutorial-title">Tutorial</h2>
         <button class="tutorial-close" id="tutorial-close" aria-label="Close">×</button>
       </div>
-      <div class="tutorial-tabs" role="tablist">
-        <button data-tab="python" class="active">Python</button>
-        <button data-tab="java">Java</button>
-        <button data-tab="c">C</button>
+      <div class="tutorial-body" id="tutorial-body">
+        <section>
+          <h3>🎯 クリア条件</h3>
+          <p>選んだ言語のプログラムを実行して、ターミナルに <code>Hello World</code> と表示されたらクリアです。</p>
+        </section>
+        <section>
+          <h3>🧭 流れ</h3>
+          <ol>
+            <li><b>ターミナル</b>でプログラム用のファイルを作る</li>
+            <li><b>エディタ</b>でそのファイルにプログラムを書く</li>
+            <li><b>ターミナル</b>でプログラムを実行する（言語によっては先にコンパイルが必要）</li>
+          </ol>
+          <p class="dim">エラーが出たらメッセージをよく読んで直してみよう。本物そっくりのエラーが出ます。</p>
+        </section>
+        <section>
+          <h3>💻 ターミナル</h3>
+          <ul>
+            <li>コマンドを入力して <kbd>Enter</kbd> で実行</li>
+            <li><code>help</code> で使えるコマンドの一覧を表示</li>
+            <li><kbd>↑</kbd> <kbd>↓</kbd> で前に入力したコマンドを呼び出し、<kbd>Tab</kbd> でファイル名を補完</li>
+            <li><code>ls</code> でファイル一覧、<code>clear</code> で画面をきれいにする</li>
+          </ul>
+        </section>
+        <section>
+          <h3>📝 エディタ</h3>
+          <ul>
+            <li>ファイルを作ると自動でタブが開きます</li>
+            <li>書いた内容は自動で保存されます</li>
+            <li>括弧やクォートは自動で閉じ、改行すると自動でインデントされます</li>
+          </ul>
+        </section>
+        <section>
+          <h3>📱 スマホのキーボード</h3>
+          <ul>
+            <li><b>Editor / Terminal</b> で入力先を切り替え（画面をタップしても切り替わります）</li>
+            <li><kbd>←</kbd> <kbd>↑</kbd> <kbd>↓</kbd> <kbd>→</kbd> でカーソル移動、<kbd>Tab</kbd> でインデント</li>
+            <li><kbd>123</kbd> で数字と記号、<kbd>#+=</kbd> でその他の記号、<kbd>ABC</kbd> で英字に戻る</li>
+            <li><kbd>⇧</kbd> で大文字（2回押すと固定）、<kbd>↶</kbd> <kbd>↷</kbd> で元に戻す／やり直し</li>
+          </ul>
+        </section>
+        <section>
+          <h3>⏱ タイムアタック</h3>
+          <p>言語を選んだ瞬間から計測スタート。クリアするとタイムが表示され、各言語のベスト記録がスタート画面に残ります。</p>
+        </section>
       </div>
-      <div class="tutorial-body" id="tutorial-body"></div>
     </div>
   </div>
 
