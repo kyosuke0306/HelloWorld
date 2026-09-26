@@ -49,9 +49,22 @@ button { font-family: inherit; }
 }
 .start-inner { position: relative; text-align: center; max-width: 420px; width: 100%; }
 .start-inner h1 {
-  font-family: var(--mono); font-size: 40px; margin: 0 0 28px;
-  color: #fff; letter-spacing: .02em; text-shadow: 0 2px 12px #000;
+  display: inline-flex; align-items: center;
+  font-family: var(--mono); font-size: 40px; font-weight: bold; line-height: 1.2;
+  margin: 0 0 28px; color: #fff; text-align: left;
 }
+.start-inner h1 .t-prompt { color: var(--term-green); }
+.start-inner h1 .typed {
+  display: inline-block; overflow: hidden; white-space: nowrap;
+  width: 0; margin-left: .6ch;
+  animation: typing .9s steps(10, end) .3s forwards;
+}
+.start-inner h1 .cursor {
+  display: inline-block; width: .6em; height: 1em; margin-left: 2px;
+  background: #fff; animation: blink 1s steps(1) infinite;
+}
+@keyframes typing { to { width: 10ch; } }
+@keyframes blink { 50% { opacity: 0; } }
 .lang-list { display: flex; flex-direction: column; gap: 12px; }
 .lang-btn {
   display: flex; align-items: center; gap: 16px;
