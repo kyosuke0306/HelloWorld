@@ -49,6 +49,91 @@
   }
   typeTitle();
 
+  // ---------------------------------------------------------------------
+  // タイムアタック
+  // ---------------------------------------------------------------------
+  const timerEl = $('timer');
+  let timerStart = 0, timerRAF = 0;
+  const fmtTime = (ms, digits = 2) => {
+    const m = Math.floor(ms / 60000), sec = (ms % 60000) / 1000;
+    return `${String(m).padStart(2, '0')}:${sec.toFixed(digits).padStart(digits + 3, '0')}`;
+  };
+  function startTimer() {
+    cancelAnimationFrame(timerRAF);
+    timerStart = performance.now();
+    timerEl.classList.remove('done');
+    const tick = () => {
+      timerEl.textContent = fmtTime(performance.now() - timerStart, 1);
+      timerRAF = requestAnimationFrame(tick);
+    };
+    tick();
+  }
+  function stopTimer() {
+    cancelAnimationFrame(timerRAF);
+    const ms = performance.now() - timerStart;
+    timerEl.textContent = fmtTime(ms, 2);
+    timerEl.classList.add('done');
+    return ms;
+  }
+  const BEST_KEY = 'helloworld-best';
+  function loadBest() {
+    try { return JSON.parse(localStorage.getItem(BEST_KEY)) || {}; } catch (e) { return {}; }
+  }
+  function saveBest(best) {
+    try { localStorage.setItem(BEST_KEY, JSON.stringify(best)); } catch (e) { /* 保存できなくても続行 */ }
+  }
+  function renderBest() {
+    const best = loadBest();
+    document.querySelectorAll('[data-best]').forEach(el => {
+      const ms = best[el.dataset.best];
+      el.textContent = ms ? `BEST ${fmtTime(ms)}` : '';
+    });
+  }
+  renderBest();
+
+  // ---------------------------------------------------------------------
+  // チュートリアル
+  // ---------------------------------------------------------------------
+  const TUTORIAL = {
+    python: {
+      steps: [
+        ['ターミナルでファイルを作る', 'touch hello.py'],
+        ['エディタでコードを書く', 'print("Hello World")'],
+        ['ターミナルで実行する', 'python3 hello.py'],
+      ],
+    },
+    java: {
+      steps: [
+        ['ターミナルでファイルを作る (ファイル名とクラス名を同じにする)', 'touch Hello.java'],
+        ['エディタでコードを書く', 'public class Hello {\n    public static void main(String[] args) {\n        System.out.println("Hello World");\n    }\n}'],
+        ['ターミナルでコンパイルする (Hello.class ができる)', 'javac Hello.java'],
+        ['ターミナルで実行する (.class は付けない)', 'java Hello'],
+      ],
+    },
+    c: {
+      steps: [
+        ['ターミナルでファイルを作る', 'touch hello.c'],
+        ['エディタでコードを書く', '#include <stdio.h>\n\nint main(void) {\n    printf("Hello World\\n");\n    return 0;\n}'],
+        ['ターミナルでコンパイルする (a.out ができる)', 'gcc hello.c'],
+        ['ターミナルで実行する (./ を付ける)', './a.out'],
+      ],
+    },
+  };
+  function renderTutorial(lang) {
+    document.querySelectorAll('.tutorial-tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === lang));
+    const hl = { python: 'py', java: 'java', c: 'c' }[lang];
+    $('tutorial-body').innerHTML = '<ol class="tutorial-steps">' + TUTORIAL[lang].steps.map(([label, code], i) => {
+      const isEditor = label.startsWith('エディタ');
+      const codeHTML = isEditor ? HW.highlight[hl](code) : `<span class="p-user">$</span> ${esc(code)}`;
+      return `<li><p>${esc(label)}</p><pre class="${isEditor ? 'tut-editor' : 'tut-term'}">${codeHTML}</pre></li>`;
+    }).join('') + '</ol><p class="tutorial-note">正しく出力できたらクリア！ 選んだ瞬間からタイムを計測します。</p>';
+  }
+  $('tutorial-btn').addEventListener('click', () => { renderTutorial('python'); $('tutorial').hidden = false; });
+  $('tutorial-close').addEventListener('click', () => { $('tutorial').hidden = true; });
+  $('tutorial').addEventListener('click', e => { if (e.target === e.currentTarget) $('tutorial').hidden = true; });
+  document.querySelectorAll('.tutorial-tabs button').forEach(b => b.addEventListener('click', () => renderTutorial(b.dataset.tab)));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') $('tutorial').hidden = true; });
+
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
     document.body.classList.toggle('on-work', id === 'work-screen');
@@ -65,6 +150,8 @@
   });
 
   function goHome() {
+    cancelAnimationFrame(timerRAF);
+    renderBest();
     showScreen('start-screen');
     state.lang = null;
     typeTitle();
@@ -86,6 +173,7 @@
     welcome();
     renderPrompt();
     focusTerminal();
+    startTimer();
   }
 
   // ---------------------------------------------------------------------
@@ -698,9 +786,18 @@
   function checkSuccess(lang, r) {
     if (lang !== state.lang) return;
     if (!isHelloWorld(r.out) || /Segmentation fault|Exception/.test(r.err || '')) return;
-    state.solved = true;
+    if (!state.solved) {
+      state.solved = true;
+      state.time = stopTimer();
+      const best = loadBest();
+      state.newRecord = !best[lang] || state.time < best[lang];
+      if (state.newRecord) { best[lang] = state.time; saveBest(best); }
+      state.best = best[lang];
+    }
     setTimeout(() => {
       $('success-overlay').hidden = false;
+      $('success-time').textContent = fmtTime(state.time);
+      $('success-best').innerHTML = state.newRecord ? '<span class="new-record">NEW RECORD!</span>' : `BEST ${fmtTime(state.best)}`;
       // アニメーションを毎回再生する
       const box = document.querySelector('.success-box');
       box.replaceWith(box.cloneNode(true));
@@ -729,18 +826,6 @@
   }
 
   function renderEditor() {
-    // エクスプローラー
-    const tree = $('file-tree');
-    tree.innerHTML = '';
-    [...state.files.keys()].sort((a, b) => a.localeCompare(b)).forEach(name => {
-      const li = document.createElement('li');
-      const f = state.files.get(name);
-      li.innerHTML = fileIcon(name) + `<span>${esc(name)}</span>`;
-      if (name === state.active) li.classList.add('active');
-      if (f.kind !== 'text') li.classList.add('binary');
-      li.addEventListener('click', () => openFile(name));
-      tree.appendChild(li);
-    });
     // タブ
     state.tabs = state.tabs.filter(t => state.files.has(t));
     if (state.active && !state.files.has(state.active)) state.active = state.tabs[state.tabs.length - 1] || null;
@@ -988,22 +1073,22 @@
         'qwertyuiop'.split(''),
         'asdfghjkl'.split(''),
         ['{shift}', ...'zxcvbnm'.split(''), '{bs}'],
-        ['{123}', '{space}', '.', '{enter}'],
+        ['{123}', '{undo}', '{space}', '{redo}', '.', '{enter}'],
       ],
       '123': [
         '1234567890'.split(''),
         ['(', ')', '{', '}', '[', ']', '"', "'", ';', ':'],
         ['{sym}', '.', ',', '=', '+', '-', '*', '/', '{bs}'],
-        ['{abc}', '{space}', '_', '{enter}'],
+        ['{abc}', '{undo}', '{space}', '{redo}', '_', '{enter}'],
       ],
       sym: [
         ['<', '>', '\\', '|', '&', '!', '?', '%', '$', '@'],
         ['#', '^', '~', '`', '(', ')', '"', "'", ';', ':'],
         ['{123}', '.', ',', '=', '+', '-', '*', '/', '{bs}'],
-        ['{abc}', '{space}', '_', '{enter}'],
+        ['{abc}', '{undo}', '{space}', '{redo}', '_', '{enter}'],
       ],
     };
-    const LABEL = { '{shift}': '⇧', '{bs}': '⌫', '{123}': '123', '{abc}': 'ABC', '{sym}': '#+=', '{space}': 'space', '{enter}': 'return' };
+    const LABEL = { '{shift}': '⇧', '{bs}': '⌫', '{123}': '123', '{abc}': 'ABC', '{sym}': '#+=', '{space}': 'space', '{enter}': 'return', '{undo}': '↶', '{redo}': '↷' };
 
     function render() {
       keysEl.innerHTML = '';
@@ -1017,7 +1102,9 @@
           b.dataset.k = k;
           if (k.length > 1 && k.startsWith('{')) {
             b.textContent = LABEL[k];
-            b.classList.add(k === '{space}' ? 'space' : k === '{enter}' ? 'enter' : 'fn');
+            b.classList.add(k === '{space}' ? 'space' : k === '{enter}' ? 'enter' : (k === '{undo}' || k === '{redo}') ? 'hist' : 'fn');
+            if (k === '{undo}') b.setAttribute('aria-label', 'Undo');
+            if (k === '{redo}') b.setAttribute('aria-label', 'Redo');
             if (k === '{shift}' && shift) b.classList.add(shift === 2 ? 'caps' : 'on');
           } else {
             b.textContent = layer === 'abc' && shift ? k.toUpperCase() : k;
@@ -1118,9 +1205,55 @@
     }
 
     // キーを送る: まず既存の keydown ハンドラに渡し、処理されなければ既定動作を行う
+    // --- Undo / Redo (エディタはファイルごと、ターミナルは入力行) ---
+    const hist = new Map();
+    let lastTyping = { key: null, at: 0 };
+    const histKey = e => (e === ta ? 'file:' + state.active : 'term');
+    function stacks(e) {
+      const k = histKey(e);
+      if (!hist.has(k)) hist.set(k, { undo: [], redo: [] });
+      return hist.get(k);
+    }
+    const snap = e => ({ v: e.value, s: e.selectionStart, en: e.selectionEnd });
+    function restore(e, st) {
+      e.value = st.v;
+      e.setSelectionRange(st.s, st.en);
+      e.dispatchEvent(new Event('input'));
+      if (e === ta) { updatePos(); keepCaretVisible(); }
+      refreshCarets();
+    }
+    function undoRedo(which) {
+      const e = el();
+      if (e === ta && (codeWrap.hidden || !state.active)) return;
+      const st = stacks(e);
+      const from = which === 'undo' ? st.undo : st.redo;
+      const to = which === 'undo' ? st.redo : st.undo;
+      if (!from.length) return;
+      to.push(snap(e));
+      restore(e, from.pop());
+      lastTyping = { key: null, at: 0 };
+    }
+
     function press(key) {
       const e = el();
       if (e === ta && (codeWrap.hidden || !state.active)) return; // 開いているファイルが無い
+      const before = snap(e);
+      const beforeKey = histKey(e);
+      pressRaw(e, key);
+      if (e === input && key === 'Enter') { hist.delete('term'); return; }
+      // 変更があれば履歴に積む (連続した英数字入力は1つにまとめる)
+      if (e.value !== before.v && histKey(e) === beforeKey) {
+        const st = stacks(e);
+        const now = Date.now();
+        const isWord = /^\w$/.test(key);
+        const merge = isWord && lastTyping.key === 'word' && now - lastTyping.at < 1500 && st.undo.length;
+        if (!merge) st.undo.push(before);
+        if (st.undo.length > 200) st.undo.shift();
+        st.redo.length = 0;
+        lastTyping = { key: isWord ? 'word' : key, at: now };
+      }
+    }
+    function pressRaw(e, key) {
       const ev = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
       const notHandled = e.dispatchEvent(ev);
       if (notHandled) {
@@ -1165,6 +1298,8 @@
         case '{bs}': press('Backspace'); startRepeat('Backspace'); return;
         case '{space}': press(' '); return;
         case '{enter}': press('Enter'); return;
+        case '{undo}': undoRedo('undo'); return;
+        case '{redo}': undoRedo('redo'); return;
       }
       const ch = layer === 'abc' && shift ? k.toUpperCase() : k;
       press(ch);

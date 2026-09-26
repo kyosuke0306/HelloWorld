@@ -21,16 +21,20 @@
         <button class="lang-btn" data-lang="python">
           <img class="lang-logo" src="icons/lang/python.svg" alt="" width="40" height="40">
           <span class="lang-name">Python</span>
+          <span class="lang-best" data-best="python"></span>
         </button>
         <button class="lang-btn" data-lang="java">
           <img class="lang-logo" src="icons/lang/java.svg" alt="" width="40" height="40">
           <span class="lang-name">Java</span>
+          <span class="lang-best" data-best="java"></span>
         </button>
         <button class="lang-btn" data-lang="c">
           <img class="lang-logo" src="icons/lang/c.svg" alt="" width="40" height="40">
           <span class="lang-name">C言語</span>
+          <span class="lang-best" data-best="c"></span>
         </button>
       </div>
+      <button class="tutorial-btn" id="tutorial-btn">Tutorial</button>
     </div>
   </section>
 
@@ -44,21 +48,9 @@
           <svg viewBox="0 0 16 16" width="14" height="14"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
         </button>
         <span class="window-title" id="editor-title">project - Visual Studio Code</span>
+        <span class="timer" id="timer">00:00.0</span>
       </div>
       <div class="editor-body">
-        <div class="activity-bar">
-          <svg viewBox="0 0 24 24" class="act-icon active"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-          <svg viewBox="0 0 24 24" class="act-icon"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m20 20-4.5-4.5" stroke="currentColor" stroke-width="1.5"/></svg>
-          <svg viewBox="0 0 24 24" class="act-icon"><circle cx="6" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="18" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 8v8M18 10c0 4-6 3-10 7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-        </div>
-        <div class="sidebar">
-          <div class="sidebar-title">エクスプローラー</div>
-          <div class="sidebar-section">
-            <svg viewBox="0 0 16 16" width="12" height="12"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
-            PROJECT
-          </div>
-          <ul class="file-tree" id="file-tree"></ul>
-        </div>
         <div class="editor-main">
           <div class="tab-bar" id="tab-bar"></div>
           <div class="breadcrumbs" id="breadcrumbs"></div>
@@ -132,10 +124,28 @@
         <path class="maru-check" d="M58 104 L88 134 L144 74" />
       </svg>
       <p class="success-text">Correct!</p>
+      <p class="success-time"><span id="success-time">00:00.00</span></p>
+      <p class="success-best" id="success-best"></p>
       <div class="success-actions">
         <button id="again-btn">Try Again</button>
         <button id="other-btn" class="primary">Next Language</button>
       </div>
+    </div>
+  </div>
+
+  <!-- チュートリアル -->
+  <div id="tutorial" class="tutorial" hidden>
+    <div class="tutorial-panel" role="dialog" aria-modal="true" aria-labelledby="tutorial-title">
+      <div class="tutorial-head">
+        <h2 id="tutorial-title">Tutorial</h2>
+        <button class="tutorial-close" id="tutorial-close" aria-label="Close">×</button>
+      </div>
+      <div class="tutorial-tabs" role="tablist">
+        <button data-tab="python" class="active">Python</button>
+        <button data-tab="java">Java</button>
+        <button data-tab="c">C</button>
+      </div>
+      <div class="tutorial-body" id="tutorial-body"></div>
     </div>
   </div>
 
