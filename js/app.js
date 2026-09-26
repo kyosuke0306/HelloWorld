@@ -241,9 +241,38 @@
     document.body.classList.toggle('on-work', id === 'work-screen');
   }
 
+  // 言語をタップ → 説明のポップアップ → Start
+  let infoLang = null;
+  function showLangInfo(lang) {
+    const info = (window.HW_LANG_INFO || {})[lang];
+    if (!info) { startLang(lang); return; }
+    infoLang = lang;
+    const btn = document.querySelector(`.lang-btn[data-lang="${lang}"]`);
+    $('li-logo').src = btn.querySelector('.lang-logo').getAttribute('src');
+    $('li-name').textContent = HW.langs[lang].label;
+    $('li-meta').textContent = `${info.year}年 / ${info.country} / ${info.creator}`;
+    const row = (label, en, text) => `<section class="li-row"><h3><span class="li-en">${en}</span>${label}</h3><p>${esc(text)}</p></section>`;
+    $('li-body').innerHTML =
+      `<div class="li-tags">${info.tags.map(t => `<span>${esc(t)}</span>`).join('')}</div>` +
+      `<p class="li-summary">${esc(info.summary)}</p>` +
+      row('強み', 'STRENGTHS', info.strengths) +
+      row('歴史', 'HISTORY', info.history) +
+      row('使われる場面', 'USE CASES', info.uses) +
+      row('書き方の特徴', 'SYNTAX', info.style) +
+      `<p class="li-ext">ファイルの拡張子 <code>${esc(HW.langs[lang].ext)}</code></p>`;
+    $('li-body').scrollTop = 0;
+    const best = loadBest()[lang];
+    $('li-best').textContent = best ? `BEST ${fmtTime(best)}` : '';
+    $('lang-info').hidden = false;
+  }
+  const hideLangInfo = () => { $('lang-info').hidden = true; };
   document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.addEventListener('click', () => startLang(btn.dataset.lang));
+    btn.addEventListener('click', () => showLangInfo(btn.dataset.lang));
   });
+  $('li-start').addEventListener('click', () => { hideLangInfo(); startLang(infoLang); });
+  $('li-close').addEventListener('click', hideLangInfo);
+  $('lang-info').addEventListener('click', e => { if (e.target === e.currentTarget) hideLangInfo(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') hideLangInfo(); });
   $('back-btn').addEventListener('click', goHome);
   $('again-btn').addEventListener('click', () => { hideSuccess(); startLang(state.lang); });
   $('other-btn').addEventListener('click', () => { hideSuccess(); goHome(); });
