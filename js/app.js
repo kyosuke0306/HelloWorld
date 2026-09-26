@@ -242,22 +242,37 @@
   }
 
   // 言語をタップ → 説明のポップアップ → Start
+  const LANG_ORDER = [...document.querySelectorAll('.lang-btn')].map(b => b.dataset.lang);
   let infoLang = null;
-  function showLangInfo(lang) {
+  function showLangInfo(lang, dir) {
     const info = (window.HW_LANG_INFO || {})[lang];
     if (!info) { startLang(lang); return; }
     infoLang = lang;
     const btn = document.querySelector(`.lang-btn[data-lang="${lang}"]`);
     $('li-logo').src = btn.querySelector('.lang-logo').getAttribute('src');
     $('li-name').textContent = HW.langs[lang].label;
-    $('li-meta').textContent = `${info.year}年 / ${info.country} / ${info.creator}`;
-    $('li-body').innerHTML =
-      `<div class="li-tags">${info.tags.map(t => `<span>${esc(t)}</span>`).join('')}<span class="li-ext-tag">${esc(HW.langs[lang].ext)}</span></div>` +
-      `<p class="li-desc">${esc(info.desc)}</p>`;
-    $('li-body').scrollTop = 0;
+    $('li-meta').textContent = `${info.year} · ${info.country} · ${info.creator}`;
+    const rows = [
+      ['タイプ', info.type],
+      ['強み', info.strengths],
+      ['用途', info.uses],
+      ['書き方', info.style],
+      ['豆知識', info.trivia],
+      ['拡張子', HW.langs[lang].ext, 'ext'],
+    ];
+    $('li-rows').innerHTML = rows.map(([k, v, cls]) => `<dt>${k}</dt><dd${cls ? ` class="${cls}"` : ''}>${esc(v)}</dd>`).join('');
+    $('li-dots').innerHTML = LANG_ORDER.map(l => `<i${l === lang ? ' class="on"' : ''}></i>`).join('');
     const best = loadBest()[lang];
-    $('li-best').textContent = best ? `BEST ${fmtTime(best)}` : '';
+    $('li-best').textContent = best ? fmtTime(best) : '--:--.--';
+    $('li-best').classList.toggle('none', !best);
+    const content = $('li-content');
+    content.classList.remove('in-left', 'in-right');
+    if (dir) { void content.offsetWidth; content.classList.add(dir > 0 ? 'in-right' : 'in-left'); }
     $('lang-info').hidden = false;
+  }
+  function moveLangInfo(d) {
+    const i = LANG_ORDER.indexOf(infoLang);
+    showLangInfo(LANG_ORDER[(i + d + LANG_ORDER.length) % LANG_ORDER.length], d);
   }
   const hideLangInfo = () => { $('lang-info').hidden = true; };
   document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -265,8 +280,36 @@
   });
   $('li-start').addEventListener('click', () => { hideLangInfo(); startLang(infoLang); });
   $('li-close').addEventListener('click', hideLangInfo);
+  $('li-prev').addEventListener('click', () => moveLangInfo(-1));
+  $('li-next').addEventListener('click', () => moveLangInfo(1));
   $('lang-info').addEventListener('click', e => { if (e.target === e.currentTarget) hideLangInfo(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') hideLangInfo(); });
+  // パネルの左右の端をタップ / スワイプで前後の言語へ
+  {
+    const panel = $('li-panel');
+    let sx = null, sy = 0;
+    panel.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; });
+    panel.addEventListener('pointerup', e => {
+      if (sx === null) return;
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      sx = null;
+      if (e.target.closest('button')) return;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) { moveLangInfo(dx < 0 ? 1 : -1); return; }
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+        const r = panel.getBoundingClientRect();
+        const edge = Math.max(44, r.width * 0.15);
+        if (e.clientX < r.left + edge) moveLangInfo(-1);
+        else if (e.clientX > r.right - edge) moveLangInfo(1);
+      }
+    });
+    panel.addEventListener('pointercancel', () => { sx = null; });
+  }
+  document.addEventListener('keydown', e => {
+    if ($('lang-info').hidden) return;
+    if (e.key === 'Escape') hideLangInfo();
+    if (e.key === 'ArrowRight') moveLangInfo(1);
+    if (e.key === 'ArrowLeft') moveLangInfo(-1);
+    if (e.key === 'Enter') { hideLangInfo(); startLang(infoLang); }
+  });
   $('back-btn').addEventListener('click', goHome);
   $('again-btn').addEventListener('click', () => { hideSuccess(); startLang(state.lang); });
   $('other-btn').addEventListener('click', () => { hideSuccess(); goHome(); });

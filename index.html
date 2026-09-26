@@ -168,18 +168,26 @@
 
   <!-- 言語の説明 -->
   <div id="lang-info" class="lang-info" hidden>
-    <div class="li-panel" role="dialog" aria-modal="true" aria-labelledby="li-name">
+    <div class="li-panel" id="li-panel" role="dialog" aria-modal="true" aria-labelledby="li-name">
       <button class="tutorial-close li-close" id="li-close" aria-label="Close">×</button>
-      <div class="li-head">
-        <img class="li-logo" id="li-logo" src="" alt="" width="64" height="64">
-        <div>
-          <h2 id="li-name"></h2>
-          <p class="li-meta" id="li-meta"></p>
+      <button class="li-nav li-prev" id="li-prev" aria-label="Previous language"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+      <button class="li-nav li-next" id="li-next" aria-label="Next language"><svg viewBox="0 0 16 16" width="16" height="16"><path d="m6 3 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+      <div class="li-content" id="li-content">
+        <div class="li-head">
+          <img class="li-logo" id="li-logo" src="" alt="" width="56" height="56">
+          <div>
+            <h2 id="li-name"></h2>
+            <p class="li-meta" id="li-meta"></p>
+          </div>
         </div>
+        <dl class="li-rows" id="li-rows"></dl>
       </div>
-      <div class="li-body" id="li-body"></div>
+      <div class="li-dots" id="li-dots"></div>
       <div class="li-foot">
-        <span class="li-best" id="li-best"></span>
+        <div class="li-best-box">
+          <span class="li-best-label">BEST</span>
+          <span class="li-best" id="li-best">--:--.--</span>
+        </div>
         <button class="li-start" id="li-start">Start</button>
       </div>
     </div>
