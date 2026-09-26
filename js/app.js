@@ -27,8 +27,8 @@
   };
 
   const extOf = name => (name.match(/\.([^.]+)$/) || [])[1] || '';
-  const hlKeyOf = name => ({ py: 'py', java: 'java', c: 'c', h: 'c' })[extOf(name)] || null;
-  const langLabelOf = name => ({ py: 'Python', java: 'Java', c: 'C', h: 'C', txt: 'プレーンテキスト', md: 'Markdown' })[extOf(name)] || 'プレーンテキスト';
+  const hlKeyOf = name => ({ py: 'py', java: 'java', c: 'c', h: 'c', cpp: 'cpp', cc: 'cpp', cxx: 'cpp', hpp: 'cpp', js: 'js', mjs: 'js', rb: 'rb', go: 'go', rs: 'rs', php: 'php' })[extOf(name)] || null;
+  const langLabelOf = name => ({ py: 'Python', java: 'Java', c: 'C', h: 'C', cpp: 'C++', cc: 'C++', cxx: 'C++', hpp: 'C++', js: 'JavaScript', mjs: 'JavaScript', rb: 'Ruby', go: 'Go', rs: 'Rust', php: 'PHP', txt: 'プレーンテキスト', md: 'Markdown' })[extOf(name)] || 'プレーンテキスト';
 
   // ---------------------------------------------------------------------
   // 画面切り替え
@@ -166,6 +166,38 @@
       ['term', 'コンパイルする (a.out ができる)', 'gcc hello.c'],
       ['term', '実行する (./ を付ける)', './a.out'],
     ],
+    cpp: [
+      ['term', 'ファイルを作る', 'touch hello.cpp'],
+      ['code', 'エディタで hello.cpp に書く', '#include <iostream>\n\nint main() {\n    std::cout << "Hello World" << std::endl;\n    return 0;\n}'],
+      ['term', 'コンパイルする (a.out ができる)', 'g++ hello.cpp'],
+      ['term', '実行する (./ を付ける)', './a.out'],
+    ],
+    javascript: [
+      ['term', 'ファイルを作る', 'touch hello.js'],
+      ['code', 'エディタで hello.js に書く', 'console.log("Hello World");'],
+      ['term', 'Node.js で実行する', 'node hello.js'],
+    ],
+    ruby: [
+      ['term', 'ファイルを作る', 'touch hello.rb'],
+      ['code', 'エディタで hello.rb に書く', 'puts "Hello World"'],
+      ['term', '実行する', 'ruby hello.rb'],
+    ],
+    go: [
+      ['term', 'ファイルを作る', 'touch hello.go'],
+      ['code', 'エディタで hello.go に書く', 'package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello World")\n}'],
+      ['term', 'コンパイルして実行する', 'go run hello.go'],
+    ],
+    rust: [
+      ['term', 'ファイルを作る', 'touch hello.rs'],
+      ['code', 'エディタで hello.rs に書く', 'fn main() {\n    println!("Hello World");\n}'],
+      ['term', 'コンパイルする (hello ができる)', 'rustc hello.rs'],
+      ['term', '実行する (./ を付ける)', './hello'],
+    ],
+    php: [
+      ['term', 'ファイルを作る', 'touch hello.php'],
+      ['code', 'エディタで hello.php に書く (<?php から始める)', '<?php\necho "Hello World\\n";'],
+      ['term', '実行する', 'php hello.php'],
+    ],
   };
   const retireBtn = $('retire-btn');
   let retireArmTimer = 0;
@@ -191,7 +223,7 @@
     cancelAnimationFrame(timerRAF);
     timerEl.classList.add('retired');
     const lang = state.lang;
-    const hlKey = { python: 'py', java: 'java', c: 'c' }[lang];
+    const hlKey = { python: 'py', java: 'java', c: 'c', cpp: 'cpp', javascript: 'js', ruby: 'rb', go: 'go', rust: 'rs', php: 'php' }[lang];
     $('answer-lang').textContent = HW.langs[lang].label;
     $('answer-body').innerHTML = '<ol class="answer-steps">' + ANSWERS[lang].map(([kind, label, code]) => {
       const where = kind === 'code' ? '<span class="flow-where e">Editor</span>' : '<span class="flow-where t">Terminal</span>';
@@ -306,8 +338,26 @@
   function colorQuotes(s) {
     return esc(s).replace(/‘([^’]*)’/g, '‘<span class="t-bold">$1</span>’');
   }
+  function colorizeRust(line) {
+    let m;
+    if ((m = /^(error(?:\[E\d+\])?)(:.*)$/.exec(line))) return `<span class="t-err t-bold">${esc(m[1])}</span><span class="t-bold">${esc(m[2])}</span>`;
+    if ((m = /^(warning)(:.*)$/.exec(line))) return `<span class="t-yellow t-bold">${esc(m[1])}</span><span class="t-bold">${esc(m[2])}</span>`;
+    if ((m = /^(\s*)(-->)(.*)$/.exec(line))) return `${m[1]}<span class="t-blue t-bold">${m[2]}</span>${esc(m[3])}`;
+    if ((m = /^(\s*\d*\s*\|)(.*)$/.exec(line))) {
+      // 波線・注釈の行だけ色を付ける (ソースコードの行はそのまま)
+      const isMark = /^\s*[\^-]/.test(m[2]);
+      const rest = isMark ? esc(m[2]).replace(/^(\s*)(\^+)(.*)$/, '$1<span class="t-err t-bold">$2$3</span>').replace(/^(\s*)(-+)(.*)$/, '$1<span class="t-blue t-bold">$2$3</span>') : esc(m[2]);
+      return `<span class="t-blue t-bold">${esc(m[1])}</span>${rest}`;
+    }
+    if ((m = /^(\s*=\s)(help|note)(:.*)$/.exec(line))) return `<span class="t-blue t-bold">${esc(m[1])}</span><span class="t-bold">${m[2]}</span>${esc(m[3])}`;
+    return esc(line);
+  }
   function writeErr(text, style) {
     if (!text) return;
+    if (style === 'rust') {
+      text.replace(/\n$/, '').split('\n').forEach(l => writeHTMLLine(colorizeRust(l)));
+      return;
+    }
     if (style === 'gcc') {
       const lines = text.replace(/\n$/, '').split('\n');
       lines.forEach(l => writeHTMLLine(colorizeGcc(l)));
@@ -388,7 +438,7 @@
   });
 
   // --- タブ補完 ---
-  const COMMAND_NAMES = ['cat', 'cd', 'clear', 'code', 'cp', 'date', 'echo', 'exit', 'gcc', 'help', 'history', 'java', 'javac', 'ls', 'mv', 'nano', 'pwd', 'python3', 'rm', 'touch', 'vim', 'whoami'];
+  const COMMAND_NAMES = ['cat', 'cd', 'clear', 'code', 'cp', 'date', 'echo', 'exit', 'g++', 'gcc', 'go', 'help', 'history', 'java', 'javac', 'ls', 'mv', 'nano', 'node', 'php', 'pwd', 'python3', 'rm', 'ruby', 'rustc', 'touch', 'vim', 'whoami'];
   function complete() {
     const v = input.value.slice(0, input.selectionStart);
     const rest = input.value.slice(input.selectionStart);
@@ -546,16 +596,18 @@
       s += '  mv <元の名前> <新しい名前> ファイル名を変更\n';
       s += '  code <ファイル名>         エディタで開く\n';
       s += '  clear                     画面をきれいにする\n';
-      if (lang === 'python') {
-        s += '  python3 <ファイル名.py>   Python プログラムを実行\n';
-      } else if (lang === 'java') {
-        s += '  javac <クラス名.java>     Java ファイルをコンパイル (.class ができる)\n';
-        s += '  java <クラス名>           コンパイルしたクラスを実行\n';
-      } else {
-        s += '  gcc <ファイル名.c>        C ファイルをコンパイル (a.out ができる)\n';
-        s += '  gcc <ファイル名.c> -o <名前>  名前をつけてコンパイル\n';
-        s += '  ./<実行ファイル名>        コンパイルしたプログラムを実行\n';
-      }
+      const HELP = {
+        python: ['  python3 <ファイル名.py>   Python プログラムを実行'],
+        java: ['  javac <クラス名.java>     Java ファイルをコンパイル (.class ができる)', '  java <クラス名>           コンパイルしたクラスを実行'],
+        c: ['  gcc <ファイル名.c>        C ファイルをコンパイル (a.out ができる)', '  gcc <ファイル名.c> -o <名前>  名前をつけてコンパイル', '  ./<実行ファイル名>        コンパイルしたプログラムを実行'],
+        cpp: ['  g++ <ファイル名.cpp>      C++ ファイルをコンパイル (a.out ができる)', '  g++ <ファイル名.cpp> -o <名前>  名前をつけてコンパイル', '  ./<実行ファイル名>        コンパイルしたプログラムを実行'],
+        javascript: ['  node <ファイル名.js>      JavaScript プログラムを実行'],
+        ruby: ['  ruby <ファイル名.rb>      Ruby プログラムを実行'],
+        go: ['  go run <ファイル名.go>    Go プログラムをコンパイルして実行', '  go build <ファイル名.go>  実行ファイルを作る'],
+        rust: ['  rustc <ファイル名.rs>     Rust ファイルをコンパイル (実行ファイルができる)', '  ./<実行ファイル名>        コンパイルしたプログラムを実行'],
+        php: ['  php <ファイル名.php>      PHP プログラムを実行'],
+      };
+      s += (HELP[lang] || []).map(l => l + '\n').join('');
       s += '\n手順: ターミナルでファイルを作る → エディタで書く → ターミナルで実行\n';
       io.out(s);
       return 0;
@@ -773,6 +825,113 @@
     // ---- C ----
     gcc(args, io) { return compileC('gcc', args, io); },
     cc(args, io) { return compileC('cc', args, io); },
+    'g++'(args, io) { return compileC('g++', args, io); },
+    'c++'(args, io) { return compileC('c++', args, io); },
+    clang(args, io) { return compileC('gcc', args, io); },
+
+    // ---- JavaScript ----
+    node(args, io) {
+      if (args[0] === '-v' || args[0] === '--version') { io.out('v20.12.2\n'); return 0; }
+      const file = args.find(a => !a.startsWith('-'));
+      if (!file) {
+        io.out('Welcome to Node.js v20.12.2.\nType ".help" for more information.\n');
+        writeln('# このアプリでは対話モードは使えません。node ファイル名.js のように実行してください', 't-hint');
+        return 0;
+      }
+      const n = normPath(file);
+      const f = n && state.files.get(n);
+      if (!f) {
+        io.err(`node:internal/modules/cjs/loader:1146\n  throw err;\n  ^\n\nError: Cannot find module '${HOME}/${file.replace(/^\.\//, '')}'\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1143:15)\n    at Module._load (node:internal/modules/cjs/loader:984:27)\n    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:174:12)\n    at node:internal/main/run_main_module:28:49 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v20.12.2\n`);
+        return 1;
+      }
+      return runScript('javascript', HW.jsRun, f, n, io);
+    },
+
+    // ---- Ruby ----
+    ruby(args, io) {
+      if (args[0] === '-v' || args[0] === '--version') { io.out('ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]\n'); return 0; }
+      const file = args.find(a => !a.startsWith('-'));
+      if (!file) { writeln('# このアプリでは標準入力からの実行は使えません。ruby ファイル名.rb のように実行してください', 't-hint'); return 0; }
+      const n = normPath(file);
+      const f = n && state.files.get(n);
+      if (!f) { io.err(`ruby: No such file or directory -- ${file} (LoadError)\n`); return 1; }
+      return runScript('ruby', HW.rbRun, f, n, io);
+    },
+
+    // ---- PHP ----
+    php(args, io) {
+      if (args[0] === '-v' || args[0] === '--version') { io.out('PHP 8.3.6 (cli) (built: Apr 15 2024 19:21:47) (NTS)\nCopyright (c) The PHP Group\nZend Engine v4.3.6, Copyright (c) Zend Technologies\n'); return 0; }
+      const file = args.find(a => !a.startsWith('-'));
+      if (!file) { writeln('# このアプリでは対話モードは使えません。php ファイル名.php のように実行してください', 't-hint'); return 0; }
+      const n = normPath(file);
+      const f = n && state.files.get(n);
+      if (!f) { io.err(`Could not open input file: ${file}\n`); return 1; }
+      return runScript('php', HW.phpRun, f, n, io);
+    },
+
+    // ---- Go ----
+    go(args, io) {
+      const sub = args[0];
+      if (!sub || sub === 'help') {
+        io.err('Go is a tool for managing Go source code.\n\nUsage:\n\n\tgo <command> [arguments]\n\nThe commands are:\n\n\tbuild       compile packages and dependencies\n\trun         compile and run Go program\n\tversion     print Go version\n');
+        return sub ? 0 : 2;
+      }
+      if (sub === 'version') { io.out('go version go1.22.2 linux/amd64\n'); return 0; }
+      if (sub !== 'run' && sub !== 'build') { io.err(`go ${sub}: unknown command\nRun 'go help' for usage.\n`); return 2; }
+      let out = null;
+      const files = [];
+      for (let i = 1; i < args.length; i++) {
+        if (args[i] === '-o') out = args[++i];
+        else if (!args[i].startsWith('-')) files.push(args[i]);
+      }
+      if (!files.length) {
+        io.err(sub === 'run' ? 'go: no go files listed\n' : `no Go files in ${HOME}\n`);
+        return 1;
+      }
+      const n = normPath(files[0]);
+      if (!n || !n.endsWith('.go')) {
+        io.err(sub === 'run' ? `package ${files[0]} is not in std (/usr/lib/go-1.22/src/${files[0]})\n` : `no Go files in ${HOME}\n`);
+        return 1;
+      }
+      const f = state.files.get(n);
+      if (!f) { io.err(`stat ${files[0]}: no such file or directory\n`); return 1; }
+      const r = HW.goCompile(f.kind === 'text' ? f.content : '', n);
+      if (!r.ok) { io.err(r.err); return 1; }
+      if (sub === 'build') {
+        const exe = normPath(out || n.replace(/\.go$/, ''));
+        state.files.set(exe, { kind: 'exec', program: r.program, lang: 'go', mtime: new Date() });
+        renderEditor();
+        return 0;
+      }
+      const res = HW.goRun(r.program);
+      io.out(res.out);
+      if (res.err) io.err(res.err);
+      checkSuccess('go', res);
+      return res.code === 0 ? 0 : 1;
+    },
+
+    // ---- Rust ----
+    rustc(args, io) {
+      if (args[0] === '-V' || args[0] === '--version') { io.out('rustc 1.75.0 (82e1608df 2023-12-21) (built from a source tarball)\n'); return 0; }
+      let out = null;
+      const files = [];
+      for (let i = 0; i < args.length; i++) {
+        if (args[i] === '-o') out = args[++i];
+        else if (!args[i].startsWith('-')) files.push(args[i]);
+      }
+      if (!files.length) { io.err('Usage: rustc [OPTIONS] INPUT\n\nOptions:\n    -o FILENAME         Write output to <filename>\n    -V, --version       Print version info and exit\n', 'rust'); return 1; }
+      const n = normPath(files[0]);
+      const f = n && state.files.get(n);
+      if (!f) { io.err(`error: couldn't read \`${files[0]}\`: No such file or directory (os error 2)\n\nerror: aborting due to 1 previous error\n\n`, 'rust'); return 1; }
+      const r = HW.rustCompile(f.kind === 'text' ? f.content : '', n);
+      if (r.err) io.err(r.err, 'rust');
+      if (!r.ok) return 1;
+      const exe = normPath(out || n.replace(/\.rs$/, ''));
+      state.files.set(exe, { kind: 'exec', program: r.program, lang: 'rust', mtime: new Date() });
+      renderEditor();
+      return 0;
+    },
+    cargo(args, io) { io.err(`error: could not find \`Cargo.toml\` in \`${HOME}\` or any parent directory\n`, 'rust'); return 101; },
   };
 
   function openInEditor(args, io) {
@@ -782,6 +941,15 @@
     if (!n) { io.err(`# ${raw} は開けません\n`); return 1; }
     createFile(n, true);
     return 0;
+  }
+
+  function runScript(lang, runner, f, n, io) {
+    if (f.kind !== 'text') { io.err(`# ${n} はテキストファイルではありません\n`); return 1; }
+    const r = runner(f.content, n);
+    io.out(r.out);
+    if (r.err) io.err(r.err);
+    checkSuccess(lang, r);
+    return r.code;
   }
 
   function compileC(prog, args, io) {
@@ -814,8 +982,9 @@
       }
     }
     const src = inputs.map(normPath);
-    const cFile = src.find(n => n.endsWith('.c'));
-    const other = src.find(n => !n.endsWith('.c'));
+    const isCpp = n => /\.(cpp|cc|cxx|C)$/.test(n);
+    const cFile = src.find(n => n.endsWith('.c') || isCpp(n));
+    const other = src.find(n => !(n.endsWith('.c') || isCpp(n)));
     if (other) {
       const f = state.files.get(other);
       if (f.kind === 'exec') io.err(`/usr/bin/ld: ${other}: in function \`_start':\n(.text+0x0): multiple definition of \`_start'\ncollect2: error: ld returned 1 exit status\n`, 'gcc');
@@ -823,12 +992,13 @@
       return 1;
     }
     const f = state.files.get(cFile);
-    const r = HW.cCompile(f.content, cFile);
+    const asCpp = isCpp(cFile) || prog === 'g++' || prog === 'c++';
+    const r = asCpp ? HW.cppCompile(f.content, cFile) : HW.cCompile(f.content, cFile);
     if (r.err) io.err(r.err, 'gcc');
     if (!r.ok) return 1;
     if (!outName) { io.err(`/usr/bin/ld: cannot open output file ${out}: No such file or directory\ncollect2: error: ld returned 1 exit status\n`, 'gcc'); return 1; }
     const existing = state.files.get(outName);
-    state.files.set(outName, { kind: 'exec', program: r.program, lang: 'c', mtime: new Date() });
+    state.files.set(outName, { kind: 'exec', program: r.program, lang: asCpp ? 'cpp' : 'c', mtime: new Date() });
     if (existing && existing.kind === 'text') { closeTab(outName, true); }
     renderEditor();
     return 0;
@@ -839,10 +1009,11 @@
     const f = n && state.files.get(n);
     if (!f) { io.err(`bash: ${cmd}: No such file or directory\n`); return 127; }
     if (f.kind !== 'exec') { io.err(`bash: ${cmd}: Permission denied\n`); return 126; }
-    const r = HW.cRun(f.program);
+    const runner = { c: HW.cRun, cpp: HW.cppRun, go: HW.goRun, rust: HW.rustRun }[f.lang] || HW.cRun;
+    const r = runner(f.program);
     io.out(r.out);
     if (r.err) io.err(r.err);
-    checkSuccess('c', r);
+    checkSuccess(f.lang || 'c', r);
     return r.code;
   }
 
@@ -890,7 +1061,7 @@
     const f = state.files.get(name);
     const ext = extOf(name);
     if (f && f.kind === 'exec') return '<span class="ficon bin">$</span>';
-    const map = { py: ['py', 'py'], java: ['java', 'J'], c: ['c', 'C'], h: ['c', 'h'], class: ['class', 'J'] };
+    const map = { py: ['py', 'py'], java: ['java', 'J'], c: ['c', 'C'], h: ['c', 'h'], class: ['class', 'J'], cpp: ['cpp', 'C+'], cc: ['cpp', 'C+'], js: ['js', 'JS'], rb: ['rb', 'rb'], go: ['go', 'go'], rs: ['rs', 'rs'], php: ['php', 'php'] };
     const [cls, label] = map[ext] || ['txt', '≡'];
     return `<span class="ficon ${cls}">${label}</span>`;
   }

@@ -9,12 +9,13 @@
 
 という流れを体験できます。正しく出力できると画面いっぱいに赤い○が表示されます。
 
-対応言語: Python / Java / C
+対応言語: Python / Java / C / C++ / JavaScript (Node.js) / Ruby / Go / Rust / PHP
 
 ## 構成
 
 - `index.html` / `css/` / `js/` … ビルド不要の静的サイト
 - `js/languages.js` … 擬似 Python インタプリタ・javac/java・gcc (それっぽいエラーメッセージ付き)
+- `js/languages-more.js` … 擬似 g++ / node / ruby / go / rustc / php
 - `js/app.js` … ターミナル・エディタ・画面遷移
 - `version.js` … デプロイ時に GitHub Actions がバージョンとデプロイ時刻を書き込みます (画面右下に表示)
 
@@ -28,4 +29,4 @@
 
 `index.html` をブラウザで開くだけで動きます。
 
-言語アイコン: Python / Java は [devicon](https://github.com/devicons/devicon) (MIT, `icons/lang/LICENSE-devicon.txt`)。各ロゴの商標は各権利者に帰属します。
+言語アイコン: C 以外は [devicon](https://github.com/devicons/devicon) (MIT, `icons/lang/LICENSE-devicon.txt`)。各ロゴの商標は各権利者に帰属します。

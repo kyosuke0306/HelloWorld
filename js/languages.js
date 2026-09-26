@@ -2179,5 +2179,7 @@
     javaRun,
     cCompile,
     cRun,
+    // 他の言語の実装 (languages-more.js) から使う内部ヘルパー
+    _: { DiagError, clex, TP, caretLine, gccFormat, highlighter, identCls, strSpan, words, cFormat, levenshtein },
   };
 })(window);

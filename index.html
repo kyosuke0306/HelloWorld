@@ -33,6 +33,36 @@
           <span class="lang-name">C</span>
           <span class="lang-best" data-best="c"></span>
         </button>
+        <button class="lang-btn" data-lang="cpp">
+          <img class="lang-logo" src="icons/lang/cpp.svg" alt="" width="40" height="40">
+          <span class="lang-name">C++</span>
+          <span class="lang-best" data-best="cpp"></span>
+        </button>
+        <button class="lang-btn" data-lang="javascript">
+          <img class="lang-logo" src="icons/lang/javascript.svg" alt="" width="40" height="40">
+          <span class="lang-name">JavaScript</span>
+          <span class="lang-best" data-best="javascript"></span>
+        </button>
+        <button class="lang-btn" data-lang="ruby">
+          <img class="lang-logo" src="icons/lang/ruby.svg" alt="" width="40" height="40">
+          <span class="lang-name">Ruby</span>
+          <span class="lang-best" data-best="ruby"></span>
+        </button>
+        <button class="lang-btn" data-lang="go">
+          <img class="lang-logo" src="icons/lang/go.svg" alt="" width="40" height="40">
+          <span class="lang-name">Go</span>
+          <span class="lang-best" data-best="go"></span>
+        </button>
+        <button class="lang-btn" data-lang="rust">
+          <img class="lang-logo" src="icons/lang/rust.svg" alt="" width="40" height="40">
+          <span class="lang-name">Rust</span>
+          <span class="lang-best" data-best="rust"></span>
+        </button>
+        <button class="lang-btn" data-lang="php">
+          <img class="lang-logo" src="icons/lang/php.svg" alt="" width="40" height="40">
+          <span class="lang-name">PHP</span>
+          <span class="lang-best" data-best="php"></span>
+        </button>
       </div>
       <button class="tutorial-btn" id="tutorial-btn">Tutorial</button>
     </div>
@@ -184,7 +214,7 @@
               <tr><th>ユーザー</th><td><code>user</code></td></tr>
               <tr><th>作業フォルダ</th><td><code>~/project</code>（<code>/home/user/project</code>）</td></tr>
               <tr><th>エディタ</th><td>Visual Studio Code 風</td></tr>
-              <tr><th>言語</th><td>Python 3.12 / Java (OpenJDK 21) / C (GCC 13)</td></tr>
+              <tr><th>言語</th><td>Python 3.12 / Java (OpenJDK 21) / C, C++ (GCC 13) / JavaScript (Node.js 20) / Ruby 3.2 / Go 1.22 / Rust 1.75 / PHP 8.3</td></tr>
             </tbody>
           </table>
           <figure class="fig">
@@ -205,7 +235,27 @@
         </section>
 
         <section>
-          <h3><span class="tut-num">03</span><span class="tut-ja">画面の見方</span><span class="tut-en">SCREEN</span></h3>
+          <h3><span class="tut-num">03</span><span class="tut-ja">スタート時の状態</span><span class="tut-en">START</span></h3>
+          <p>言語を選んだ直後は、<b>ファイルは1つも用意されていません</b>。プログラムを書くファイルは自分で作るところから始めます。</p>
+          <figure class="fig">
+            <div class="mock-term">
+              <div class="mock-bar"><i></i><i></i><i></i></div>
+              <div class="mock-line"><span><span class="mp">user@helloworld</span>:<span class="p-path">~/project</span>$ pwd</span></div>
+              <div class="mock-line mock-note-line">/home/user/project <span class="mock-note">今いる場所</span></div>
+              <div class="mock-line"><span><span class="mp">user@helloworld</span>:<span class="p-path">~/project</span>$ ls</span></div>
+              <div class="mock-line mock-empty"><span class="mock-note">何も表示されない ＝ ファイルがない</span></div>
+              <div class="mock-line"><span><span class="mp">user@helloworld</span>:<span class="p-path">~/project</span>$ <span class="blink-cur"></span></span></div>
+            </div>
+          </figure>
+          <ul>
+            <li>ターミナルは最初から <code>~/project</code>（<code>/home/user/project</code>）フォルダにいます。<code>pwd</code> で今いる場所を確認できます</li>
+            <li>ファイルはこの <code>~/project</code> の中に作られます</li>
+            <li>エディタも最初は空。ファイルを作るとタブが開きます</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3><span class="tut-num">04</span><span class="tut-ja">画面の見方</span><span class="tut-en">SCREEN</span></h3>
           <figure class="fig">
             <div class="mock-screen">
               <div class="ms-editor">
@@ -233,7 +283,7 @@
         </section>
 
         <section>
-          <h3><span class="tut-num">04</span><span class="tut-ja">流れ</span><span class="tut-en">FLOW</span></h3>
+          <h3><span class="tut-num">05</span><span class="tut-ja">流れ</span><span class="tut-en">FLOW</span></h3>
           <figure class="fig">
             <div class="flow">
               <div class="flow-step"><span class="flow-n">1</span><span class="flow-where t">Terminal</span><span class="flow-what">ファイルを作る</span></div>
@@ -247,7 +297,7 @@
         </section>
 
         <section>
-          <h3><span class="tut-num">05</span><span class="tut-ja">ファイル名</span><span class="tut-en">FILE NAME</span></h3>
+          <h3><span class="tut-num">06</span><span class="tut-ja">ファイル名</span><span class="tut-en">FILE NAME</span></h3>
           <p>ファイル名は「名前」と「拡張子」でできています。</p>
           <figure class="fig">
             <div class="fname">
@@ -263,6 +313,12 @@
               <tr><td><img src="icons/lang/python.svg" alt="" width="18" height="18">Python</td><td><code>.py</code></td><td>hello.py</td></tr>
               <tr><td><img src="icons/lang/java.svg" alt="" width="18" height="18">Java</td><td><code>.java</code></td><td>Hello.java</td></tr>
               <tr><td><img src="icons/lang/c.svg" alt="" width="18" height="18">C</td><td><code>.c</code></td><td>hello.c</td></tr>
+              <tr><td><img src="icons/lang/cpp.svg" alt="" width="18" height="18">C++</td><td><code>.cpp</code></td><td>hello.cpp</td></tr>
+              <tr><td><img src="icons/lang/javascript.svg" alt="" width="18" height="18">JavaScript</td><td><code>.js</code></td><td>hello.js</td></tr>
+              <tr><td><img src="icons/lang/ruby.svg" alt="" width="18" height="18">Ruby</td><td><code>.rb</code></td><td>hello.rb</td></tr>
+              <tr><td><img src="icons/lang/go.svg" alt="" width="18" height="18">Go</td><td><code>.go</code></td><td>hello.go</td></tr>
+              <tr><td><img src="icons/lang/rust.svg" alt="" width="18" height="18">Rust</td><td><code>.rs</code></td><td>hello.rs</td></tr>
+              <tr><td><img src="icons/lang/php.svg" alt="" width="18" height="18">PHP</td><td><code>.php</code></td><td>hello.php</td></tr>
             </tbody>
           </table>
           <ul class="rules">
@@ -273,7 +329,7 @@
         </section>
 
         <section>
-          <h3><span class="tut-num">06</span><span class="tut-ja">ターミナル</span><span class="tut-en">TERMINAL</span></h3>
+          <h3><span class="tut-num">07</span><span class="tut-ja">ターミナル</span><span class="tut-en">TERMINAL</span></h3>
           <ul>
             <li>コマンドを入力して <kbd>Enter</kbd> で実行</li>
             <li><code>help</code> で使えるコマンドの一覧を表示</li>
@@ -283,7 +339,7 @@
         </section>
 
         <section>
-          <h3><span class="tut-num">07</span><span class="tut-ja">エディタ</span><span class="tut-en">EDITOR</span></h3>
+          <h3><span class="tut-num">08</span><span class="tut-ja">エディタ</span><span class="tut-en">EDITOR</span></h3>
           <ul>
             <li>ファイルを作ると自動でタブが開きます</li>
             <li>書いた内容は自動で保存されます</li>
@@ -292,7 +348,7 @@
         </section>
 
         <section>
-          <h3><span class="tut-num">08</span><span class="tut-ja">スマホのキーボード</span><span class="tut-en">KEYBOARD</span></h3>
+          <h3><span class="tut-num">09</span><span class="tut-ja">スマホのキーボード</span><span class="tut-en">KEYBOARD</span></h3>
           <figure class="fig">
             <div class="mock-kbd">
               <div class="mk-row">
@@ -314,7 +370,7 @@
         </section>
 
         <section>
-          <h3><span class="tut-num">09</span><span class="tut-ja">タイムアタック</span><span class="tut-en">TIME ATTACK</span></h3>
+          <h3><span class="tut-num">10</span><span class="tut-ja">タイムアタック</span><span class="tut-en">TIME ATTACK</span></h3>
           <figure class="fig fig-row">
             <span class="mock-timer">00:42.1</span>
             <span class="flow-arrow"></span>
@@ -335,6 +391,7 @@
 
   <script src="version.js"></script>
   <script src="js/languages.js"></script>
+  <script src="js/languages-more.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
