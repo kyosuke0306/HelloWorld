@@ -2171,7 +2171,7 @@
     langs: {
       python: { id: 'python', label: 'Python', ext: '.py', sample: 'hello.py', statusName: 'Python' },
       java: { id: 'java', label: 'Java', ext: '.java', sample: 'Hello.java', statusName: 'Java' },
-      c: { id: 'c', label: 'C言語', ext: '.c', sample: 'hello.c', statusName: 'C' },
+      c: { id: 'c', label: 'C', ext: '.c', sample: 'hello.c', statusName: 'C' },
     },
     highlight: { py: pyHighlight, java: javaHighlight, c: cHighlight },
     pyRun,
