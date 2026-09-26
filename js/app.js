@@ -1015,7 +1015,7 @@
           b.type = 'button';
           b.className = 'vk-key';
           b.dataset.k = k;
-          if (k.startsWith('{')) {
+          if (k.length > 1 && k.startsWith('{')) {
             b.textContent = LABEL[k];
             b.classList.add(k === '{space}' ? 'space' : k === '{enter}' ? 'enter' : 'fn');
             if (k === '{shift}' && shift) b.classList.add(shift === 2 ? 'caps' : 'on');
