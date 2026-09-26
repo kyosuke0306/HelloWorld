@@ -852,3 +852,36 @@ body.vkbd-on.on-work .version-badge { display: none; }
   flex-direction: column; padding: 0; gap: 5px;
 }
 .li-langdots i.on { width: 5px; height: 14px; }
+
+/* ---------- ポップアップ: 閉じやすく & 脈打つ光 ---------- */
+.lang-info { flex-direction: column; gap: 14px; padding: 20px 20px calc(16px + env(safe-area-inset-bottom)); }
+.li-panel { height: min(600px, calc(100% - 70px)); }
+.li-close { width: 38px; height: 38px; font-size: 22px; background: rgba(255, 255, 255, .08); }
+.li-close-bottom {
+  flex: none; width: 54px; height: 54px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, .1); color: #fff; cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, .25);
+  animation: fade-in .3s .1s ease-out both;
+}
+.li-close-bottom:hover, .li-close-bottom:active { background: rgba(255, 255, 255, .2); }
+.li-panel {
+  --glow: 59, 130, 246;
+  border-color: rgba(var(--glow), .6);
+  animation: rise .25s ease-out, panel-pulse 2.4s ease-in-out .25s infinite;
+}
+@keyframes panel-pulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(var(--glow), .25), 0 0 0 1px rgba(var(--glow), .2); border-color: rgba(var(--glow), .45); }
+  50% { box-shadow: 0 0 38px rgba(var(--glow), .6), 0 0 0 2px rgba(var(--glow), .45); border-color: rgba(var(--glow), .95); }
+}
+.li-head { background: radial-gradient(circle at 50% 38%, rgba(var(--glow), .22), #1a1a1a 62%); }
+.li-logo { animation: logo-pulse 2.4s ease-in-out .25s infinite; }
+@keyframes logo-pulse {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(var(--glow), .35)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 16px rgba(var(--glow), .9)); transform: scale(1.05); }
+}
+.li-progress i.on { box-shadow: 0 0 6px rgba(var(--glow), .8); }
+.li-langdots i.on { background: rgb(var(--glow)); box-shadow: 0 0 6px rgba(var(--glow), .9); }
+@media (prefers-reduced-motion: reduce) {
+  .li-panel, .li-logo, .lang-btn::before { animation: none !important; }
+}
