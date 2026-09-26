@@ -61,7 +61,8 @@
   function startTimer() {
     cancelAnimationFrame(timerRAF);
     timerStart = performance.now();
-    timerEl.classList.remove('done');
+    timerEl.classList.remove('done', 'retired');
+    if (typeof resetRetire === 'function') resetRetire();
     const tick = () => {
       timerEl.textContent = fmtTime(performance.now() - timerStart, 1);
       timerRAF = requestAnimationFrame(tick);
@@ -98,6 +99,65 @@
   $('tutorial-close').addEventListener('click', () => { $('tutorial').hidden = true; });
   $('tutorial').addEventListener('click', e => { if (e.target === e.currentTarget) $('tutorial').hidden = true; });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') $('tutorial').hidden = true; });
+
+  // ---------------------------------------------------------------------
+  // リタイア (答えを表示)
+  // ---------------------------------------------------------------------
+  const ANSWERS = {
+    python: [
+      ['term', 'ファイルを作る', 'touch hello.py'],
+      ['code', 'エディタで hello.py に書く', 'print("Hello World")'],
+      ['term', '実行する', 'python3 hello.py'],
+    ],
+    java: [
+      ['term', 'ファイルを作る (ファイル名とクラス名を同じにする)', 'touch Hello.java'],
+      ['code', 'エディタで Hello.java に書く', 'public class Hello {\n    public static void main(String[] args) {\n        System.out.println("Hello World");\n    }\n}'],
+      ['term', 'コンパイルする (Hello.class ができる)', 'javac Hello.java'],
+      ['term', '実行する (.class は付けない)', 'java Hello'],
+    ],
+    c: [
+      ['term', 'ファイルを作る', 'touch hello.c'],
+      ['code', 'エディタで hello.c に書く', '#include <stdio.h>\n\nint main(void) {\n    printf("Hello World\\n");\n    return 0;\n}'],
+      ['term', 'コンパイルする (a.out ができる)', 'gcc hello.c'],
+      ['term', '実行する (./ を付ける)', './a.out'],
+    ],
+  };
+  const retireBtn = $('retire-btn');
+  let retireArmTimer = 0;
+  function resetRetire() {
+    clearTimeout(retireArmTimer);
+    retireBtn.classList.remove('armed');
+    retireBtn.textContent = 'Retire';
+  }
+  retireBtn.addEventListener('pointerdown', e => e.preventDefault()); // 入力先のフォーカスを奪わない
+  retireBtn.addEventListener('click', () => {
+    if (state.solved) return;
+    if (!retireBtn.classList.contains('armed')) {
+      retireBtn.classList.add('armed');
+      retireBtn.textContent = 'Sure?';
+      retireArmTimer = setTimeout(resetRetire, 3000);
+      return;
+    }
+    resetRetire();
+    retire();
+  });
+  function retire() {
+    state.solved = true; // 以降は記録しない
+    cancelAnimationFrame(timerRAF);
+    timerEl.classList.add('retired');
+    const lang = state.lang;
+    const hlKey = { python: 'py', java: 'java', c: 'c' }[lang];
+    $('answer-lang').textContent = HW.langs[lang].label;
+    $('answer-body').innerHTML = '<ol class="answer-steps">' + ANSWERS[lang].map(([kind, label, code]) => {
+      const where = kind === 'code' ? '<span class="flow-where e">Editor</span>' : '<span class="flow-where t">Terminal</span>';
+      const body = kind === 'code' ? HW.highlight[hlKey](code) : `<span class="p-user">$</span> ${esc(code)}`;
+      return `<li><div class="answer-step-head">${where}<span>${esc(label)}</span></div><pre class="${kind === 'code' ? 'tut-editor' : 'tut-term'}">${body}</pre></li>`;
+    }).join('') + '</ol>';
+    $('answer-body').scrollTop = 0;
+    $('answer-overlay').hidden = false;
+  }
+  $('answer-again').addEventListener('click', () => { $('answer-overlay').hidden = true; startLang(state.lang); });
+  $('answer-home').addEventListener('click', () => { $('answer-overlay').hidden = true; goHome(); });
 
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));

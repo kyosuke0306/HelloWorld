@@ -48,7 +48,10 @@
           <svg viewBox="0 0 16 16" width="14" height="14"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
         </button>
         <span class="window-title" id="editor-title">project - Visual Studio Code</span>
-        <span class="timer" id="timer">00:00.0</span>
+        <span class="titlebar-right">
+          <button class="retire-btn" id="retire-btn">Retire</button>
+          <span class="timer" id="timer">00:00.0</span>
+        </span>
       </div>
       <div class="editor-body">
         <div class="editor-main">
@@ -129,6 +132,22 @@
       <div class="success-actions">
         <button id="again-btn">Try Again</button>
         <button id="other-btn" class="primary">Next Language</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- リタイア: 答え -->
+  <div id="answer-overlay" class="answer-overlay" hidden>
+    <div class="answer-panel" role="dialog" aria-modal="true" aria-labelledby="answer-title">
+      <div class="answer-head">
+        <p class="answer-kicker">RETIRED</p>
+        <h2 id="answer-title">Answer</h2>
+        <p class="answer-lang" id="answer-lang"></p>
+      </div>
+      <div class="answer-body" id="answer-body"></div>
+      <div class="answer-actions">
+        <button id="answer-again">Try Again</button>
+        <button id="answer-home" class="primary">Next Language</button>
       </div>
     </div>
   </div>
