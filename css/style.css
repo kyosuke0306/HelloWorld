@@ -751,3 +751,6 @@ body.vkbd-on.on-work .version-badge { display: none; }
   font-family: var(--mono); font-size: 17px; font-weight: bold; letter-spacing: .05em;
 }
 .li-start:hover { background: #16a34a; }
+.li-desc { margin: 0 0 6px; color: #ddd; font-size: 14px; line-height: 1.8; }
+.li-tags .li-ext-tag { color: #fce94f; border-color: #5c5420; background: rgba(252, 233, 79, .08); }
+.li-head { padding-bottom: 10px; }

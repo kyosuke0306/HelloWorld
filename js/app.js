@@ -251,15 +251,9 @@
     $('li-logo').src = btn.querySelector('.lang-logo').getAttribute('src');
     $('li-name').textContent = HW.langs[lang].label;
     $('li-meta').textContent = `${info.year}年 / ${info.country} / ${info.creator}`;
-    const row = (label, en, text) => `<section class="li-row"><h3><span class="li-en">${en}</span>${label}</h3><p>${esc(text)}</p></section>`;
     $('li-body').innerHTML =
-      `<div class="li-tags">${info.tags.map(t => `<span>${esc(t)}</span>`).join('')}</div>` +
-      `<p class="li-summary">${esc(info.summary)}</p>` +
-      row('強み', 'STRENGTHS', info.strengths) +
-      row('歴史', 'HISTORY', info.history) +
-      row('使われる場面', 'USE CASES', info.uses) +
-      row('書き方の特徴', 'SYNTAX', info.style) +
-      `<p class="li-ext">ファイルの拡張子 <code>${esc(HW.langs[lang].ext)}</code></p>`;
+      `<div class="li-tags">${info.tags.map(t => `<span>${esc(t)}</span>`).join('')}<span class="li-ext-tag">${esc(HW.langs[lang].ext)}</span></div>` +
+      `<p class="li-desc">${esc(info.desc)}</p>`;
     $('li-body').scrollTop = 0;
     const best = loadBest()[lang];
     $('li-best').textContent = best ? `BEST ${fmtTime(best)}` : '';
