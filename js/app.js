@@ -222,7 +222,17 @@
     state.solved = true; // 以降は記録しない
     cancelAnimationFrame(timerRAF);
     timerEl.classList.add('retired');
-    const lang = state.lang;
+    showAnswer(state.lang, 'retire');
+  }
+  // mode: 'retire' (作業画面から) / 'preview' (言語のポップアップから)
+  let answerMode = 'retire', answerLang = null;
+  function showAnswer(lang, mode) {
+    answerMode = mode;
+    answerLang = lang;
+    document.querySelector('.answer-kicker').textContent = mode === 'retire' ? 'RETIRED' : 'PREVIEW';
+    document.querySelector('.answer-kicker').classList.toggle('preview', mode !== 'retire');
+    $('answer-again').textContent = mode === 'retire' ? 'Try Again' : 'Back';
+    $('answer-home').textContent = mode === 'retire' ? 'TOP' : 'Start';
     const hlKey = { python: 'py', java: 'java', c: 'c', cpp: 'cpp', javascript: 'js', ruby: 'rb', go: 'go', rust: 'rs', php: 'php' }[lang];
     $('answer-lang').textContent = HW.langs[lang].label;
     $('answer-body').innerHTML = '<ol class="answer-steps">' + ANSWERS[lang].map(([kind, label, code]) => {
@@ -233,8 +243,16 @@
     $('answer-body').scrollTop = 0;
     $('answer-overlay').hidden = false;
   }
-  $('answer-again').addEventListener('click', () => { $('answer-overlay').hidden = true; startLang(state.lang); });
-  $('answer-home').addEventListener('click', () => { $('answer-overlay').hidden = true; goHome(); });
+  $('answer-again').addEventListener('click', () => {
+    $('answer-overlay').hidden = true;
+    if (answerMode === 'retire') startLang(state.lang); // もう一度
+    // preview のときは言語のポップアップに戻るだけ
+  });
+  $('answer-home').addEventListener('click', () => {
+    $('answer-overlay').hidden = true;
+    if (answerMode === 'retire') goHome();
+    else { $('lang-info').hidden = true; startLang(answerLang); }
+  });
 
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
@@ -315,6 +333,7 @@
     });
   });
   $('li-start').addEventListener('click', () => { hideLangInfo(); startLang(infoLang); });
+  $('li-answer').addEventListener('click', () => showAnswer(infoLang, 'preview'));
   $('li-close').addEventListener('click', hideLangInfo);
   $('li-close-bottom').addEventListener('click', hideLangInfo);
   $('lang-info').addEventListener('click', e => { if (e.target === e.currentTarget) hideLangInfo(); });
