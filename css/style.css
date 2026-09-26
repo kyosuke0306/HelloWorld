@@ -82,6 +82,7 @@ button { font-family: inherit; }
   padding-bottom: 28px;
   background: #111;
 }
+.panes { flex: 1; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
 .editor-window, .terminal-window {
   display: flex; flex-direction: column;
   border-radius: 8px; overflow: hidden;
@@ -149,7 +150,7 @@ button { font-family: inherit; }
 .breadcrumbs { height: 22px; flex: none; padding: 0 14px; font-size: 12px; color: #a0a0a0; display: flex; align-items: center; }
 .breadcrumbs:empty { display: none; }
 
-.editor-area { flex: 1; position: relative; min-height: 0; }
+.editor-area { flex: 1; position: relative; min-height: 0; overflow: hidden; }
 .editor-empty {
   position: absolute; inset: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -286,7 +287,7 @@ button { font-family: inherit; }
 
 /* ---------- レスポンシブ ---------- */
 @media (min-width: 900px) {
-  #work-screen { flex-direction: row; }
+  .panes { flex-direction: row; }
   .editor-window { flex: 1.3; }
 }
 @media (max-width: 640px) {
@@ -298,3 +299,59 @@ button { font-family: inherit; }
   .gutter { min-width: 36px; padding: 0 10px 0 4px; }
   .editor-window { flex: 1; }
 }
+
+/* ---------- スマホ用キーボード ---------- */
+#work-screen.has-vkbd { padding: 6px 6px 0; gap: 6px; }
+#work-screen.has-vkbd .editor-window,
+#work-screen.has-vkbd .terminal-window { flex: 1; }
+#work-screen.has-vkbd.target-editor .editor-window { flex: 1.7; }
+#work-screen.has-vkbd.target-terminal .terminal-window { flex: 1.7; }
+#work-screen.has-vkbd .editor-window,
+#work-screen.has-vkbd .terminal-window { outline: 2px solid transparent; outline-offset: -2px; }
+#work-screen.has-vkbd.target-editor .editor-window,
+#work-screen.has-vkbd.target-terminal .terminal-window { outline-color: #3b82f6; }
+body.vkbd-on.on-work .version-badge { display: none; }
+
+.vkbd {
+  flex: none;
+  margin: 0 -6px;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  background: #2b2b2e;
+  border-top: 1px solid #3a3a3d;
+  user-select: none; -webkit-user-select: none;
+  touch-action: manipulation;
+  font-family: var(--ui);
+}
+.vkbd[hidden] { display: none; }
+.vkbd button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  font-family: inherit;
+  border: none; color: #fff; cursor: pointer;
+}
+.vk-toolbar { display: flex; align-items: center; gap: 5px; padding: 0 2px 6px; }
+.vk-spacer { flex: 1; }
+.vk-seg { display: flex; background: #1c1c1e; border-radius: 8px; padding: 2px; }
+.vk-tgt { padding: 7px 10px; font-size: 13px; background: transparent; border-radius: 6px; color: #aaa !important; }
+.vk-tgt.active { background: #3b82f6; color: #fff !important; }
+.vk-nav {
+  min-width: 38px; height: 34px; padding: 0 8px;
+  background: #4a4a4e; border-radius: 6px; font-size: 16px;
+}
+.vk-nav[data-key="Tab"] { font-size: 13px; }
+.vk-keys { display: flex; flex-direction: column; gap: 8px; }
+.vk-row { display: flex; gap: 5px; justify-content: center; }
+.vk-key {
+  flex: 1 1 0; max-width: 44px; height: 42px; padding: 0;
+  background: #5a5a5e; border-radius: 6px;
+  font-family: var(--mono) !important; font-size: 19px;
+  box-shadow: 0 1px 0 #111;
+}
+.vk-key.fn { background: #3f3f43; font-family: var(--ui) !important; font-size: 14px; max-width: none; flex: 1.5 1 0; }
+.vk-key.space { flex: 5 1 0; max-width: none; font-size: 14px; }
+.vk-key.enter { background: #3b82f6; flex: 2 1 0; max-width: none; font-size: 15px; }
+.vk-key.on { background: #e5e5ea; color: #111; }
+.vk-key.caps { background: #e5e5ea; color: #111; text-decoration: underline; }
+.vk-key:active, .vk-nav:active { filter: brightness(1.4); }
+#work-screen.has-vkbd .editor-empty p { font-size: 12px; }
+#work-screen.has-vkbd .editor-empty svg { display: none; }

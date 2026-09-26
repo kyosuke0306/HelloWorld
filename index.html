@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#000000">
   <meta name="description" content="いろいろなプログラミング言語で Hello World を出力する練習アプリ">
   <title>HelloWorld</title>
@@ -36,6 +36,7 @@
 
   <!-- 作業画面 -->
   <section id="work-screen" class="screen">
+    <div class="panes">
     <!-- エディタ (VS Code 風) -->
     <div class="editor-window">
       <div class="window-titlebar">
@@ -102,6 +103,24 @@
           <span class="prompt" id="term-prompt"></span><span class="input-wrap"><input id="term-input" type="text" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="ターミナル入力"></span>
         </div>
       </div>
+    </div>
+    </div>
+
+    <!-- スマホ用キーボード -->
+    <div class="vkbd" id="vkbd" hidden>
+      <div class="vk-toolbar">
+        <div class="vk-seg" role="tablist">
+          <button class="vk-tgt" data-target="editor">Editor</button>
+          <button class="vk-tgt" data-target="terminal">Terminal</button>
+        </div>
+        <span class="vk-spacer"></span>
+        <button class="vk-nav" data-key="Tab">Tab</button>
+        <button class="vk-nav" data-key="ArrowLeft" aria-label="left">←</button>
+        <button class="vk-nav" data-key="ArrowUp" aria-label="up">↑</button>
+        <button class="vk-nav" data-key="ArrowDown" aria-label="down">↓</button>
+        <button class="vk-nav" data-key="ArrowRight" aria-label="right">→</button>
+      </div>
+      <div class="vk-keys" id="vk-keys"></div>
     </div>
   </section>
 

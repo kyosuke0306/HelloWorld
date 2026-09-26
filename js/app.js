@@ -51,6 +51,7 @@
 
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+    document.body.classList.toggle('on-work', id === 'work-screen');
   }
 
   document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -97,6 +98,7 @@
   const PROMPT_HTML = '<span class="p-user">user@helloworld</span>:<span class="p-path">~/project</span>$ ';
 
   function focusTerminal() {
+    if (window.HW_VKBD) { window.HW_VKBD.setTarget('terminal'); return; }
     if (window.matchMedia('(pointer: coarse)').matches) return; // モバイルでは勝手にキーボードを出さない
     input.focus({ preventScroll: true });
   }
@@ -779,6 +781,8 @@
     state.active = name;
     if (changed) loadActiveIntoEditor();
     renderEditor();
+    // スマホではファイルを開いたらエディタに入力先を切り替える
+    if (window.HW_VKBD && state.files.get(name).kind === 'text') setTimeout(() => window.HW_VKBD.setTarget('editor'), 0);
   }
   function closeTab(name, silent) {
     state.tabs = state.tabs.filter(t => t !== name);
@@ -796,6 +800,7 @@
     ta.setSelectionRange(0, 0);
   }
   function focusEditor() {
+    if (window.HW_VKBD) { window.HW_VKBD.setTarget('editor'); return; }
     if (!codeWrap.hidden) ta.focus();
   }
 
@@ -926,4 +931,221 @@
   });
 
   // Service worker は使わない (常に最新版を表示するため)
+
+  // ---------------------------------------------------------------------
+  // 入力は半角英数字・記号のみ (全角や日本語入力を取り除く)
+  // ---------------------------------------------------------------------
+  function stripNonAscii(el) {
+    if (!/[^\x00-\x7F]/.test(el.value)) return;
+    const pos = el.selectionStart;
+    const before = el.value.slice(0, pos).replace(/[^\x00-\x7F]/g, '');
+    el.value = before + el.value.slice(pos).replace(/[^\x00-\x7F]/g, '');
+    el.setSelectionRange(before.length, before.length);
+    el.dispatchEvent(new Event('input'));
+  }
+  [ta, input].forEach(el => {
+    el.addEventListener('beforeinput', e => {
+      if (e.data && /[^\x00-\x7F]/.test(e.data) && e.cancelable && !e.isComposing) e.preventDefault();
+    });
+    el.addEventListener('compositionend', () => setTimeout(() => stripNonAscii(el), 0));
+    el.addEventListener('input', e => { if (!e.isComposing) stripNonAscii(el); });
+  });
+
+  // ---------------------------------------------------------------------
+  // スマホ用キーボード (タッチ端末のみ)
+  // ---------------------------------------------------------------------
+  const isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+  if (isTouch) setupVirtualKeyboard();
+
+  function setupVirtualKeyboard() {
+    const kb = $('vkbd');
+    const keysEl = $('vk-keys');
+    const work = $('work-screen');
+    kb.hidden = false;
+    work.classList.add('has-vkbd');
+    document.body.classList.add('vkbd-on');
+    // OS のキーボードを出さない
+    ta.setAttribute('inputmode', 'none');
+    input.setAttribute('inputmode', 'none');
+
+    let target = 'terminal';
+    let layer = 'abc';
+    let shift = 0; // 0: off, 1: 1文字だけ, 2: caps lock
+    let lastShiftTap = 0;
+
+    const LAYERS = {
+      abc: [
+        'qwertyuiop'.split(''),
+        'asdfghjkl'.split(''),
+        ['{shift}', ...'zxcvbnm'.split(''), '{bs}'],
+        ['{123}', '{space}', '.', '{enter}'],
+      ],
+      '123': [
+        '1234567890'.split(''),
+        ['(', ')', '{', '}', '[', ']', '"', "'", ';', ':'],
+        ['{sym}', '.', ',', '=', '+', '-', '*', '/', '{bs}'],
+        ['{abc}', '{space}', '_', '{enter}'],
+      ],
+      sym: [
+        ['<', '>', '\\', '|', '&', '!', '?', '%', '$', '@'],
+        ['#', '^', '~', '`', '(', ')', '"', "'", ';', ':'],
+        ['{123}', '.', ',', '=', '+', '-', '*', '/', '{bs}'],
+        ['{abc}', '{space}', '_', '{enter}'],
+      ],
+    };
+    const LABEL = { '{shift}': '⇧', '{bs}': '⌫', '{123}': '123', '{abc}': 'ABC', '{sym}': '#+=', '{space}': 'space', '{enter}': 'return' };
+
+    function render() {
+      keysEl.innerHTML = '';
+      for (const row of LAYERS[layer]) {
+        const r = document.createElement('div');
+        r.className = 'vk-row';
+        for (const k of row) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'vk-key';
+          b.dataset.k = k;
+          if (k.startsWith('{')) {
+            b.textContent = LABEL[k];
+            b.classList.add(k === '{space}' ? 'space' : k === '{enter}' ? 'enter' : 'fn');
+            if (k === '{shift}' && shift) b.classList.add(shift === 2 ? 'caps' : 'on');
+          } else {
+            b.textContent = layer === 'abc' && shift ? k.toUpperCase() : k;
+          }
+          r.appendChild(b);
+        }
+        keysEl.appendChild(r);
+      }
+    }
+
+    function el() { return target === 'editor' ? ta : input; }
+    function setTarget(t) {
+      if (t === 'editor' && codeWrap.hidden) t = 'terminal';
+      target = t;
+      work.classList.toggle('target-editor', t === 'editor');
+      work.classList.toggle('target-terminal', t === 'terminal');
+      kb.querySelectorAll('.vk-tgt').forEach(b => b.classList.toggle('active', b.dataset.target === t));
+      const e = el();
+      e.focus({ preventScroll: true });
+      if (t === 'terminal') moveCaretEnd();
+      requestAnimationFrame(scrollBottom);
+    }
+    window.HW_VKBD = { setTarget };
+
+    function insertInto(e, text) {
+      e.focus({ preventScroll: true });
+      let ok = false;
+      try { ok = document.execCommand('insertText', false, text); } catch (err) { ok = false; }
+      if (!ok) {
+        e.setRangeText(text, e.selectionStart, e.selectionEnd, 'end');
+        e.dispatchEvent(new Event('input'));
+      }
+    }
+    function moveVertical(dir) {
+      const v = ta.value, s = ta.selectionStart;
+      const ls = v.lastIndexOf('\n', s - 1) + 1;
+      const col = s - ls;
+      let pos;
+      if (dir < 0) {
+        if (ls === 0) pos = 0;
+        else {
+          const pls = v.lastIndexOf('\n', ls - 2) + 1;
+          pos = Math.min(pls + col, ls - 1);
+        }
+      } else {
+        const le = v.indexOf('\n', s);
+        if (le < 0) pos = v.length;
+        else {
+          const nle = v.indexOf('\n', le + 1);
+          pos = Math.min(le + 1 + col, nle < 0 ? v.length : nle);
+        }
+      }
+      ta.setSelectionRange(pos, pos);
+    }
+    function keepCaretVisible() {
+      if (target !== 'editor') return;
+      const v = ta.value, s = ta.selectionStart;
+      const line = v.slice(0, s).split('\n').length - 1;
+      const lh = 20, top = line * lh;
+      if (top < ta.scrollTop) ta.scrollTop = top;
+      else if (top + lh > ta.scrollTop + ta.clientHeight - 20) ta.scrollTop = top + lh * 2 - ta.clientHeight + 20;
+      const ls = v.lastIndexOf('\n', s - 1) + 1;
+      const x = (s - ls) * 8.4;
+      if (x < ta.scrollLeft) ta.scrollLeft = Math.max(0, x - 40);
+      else if (x > ta.scrollLeft + ta.clientWidth - 30) ta.scrollLeft = x - ta.clientWidth + 60;
+      syncScroll();
+    }
+
+    // キーを送る: まず既存の keydown ハンドラに渡し、処理されなければ既定動作を行う
+    function press(key) {
+      const e = el();
+      if (document.activeElement !== e) e.focus({ preventScroll: true });
+      const ev = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      const notHandled = e.dispatchEvent(ev);
+      if (notHandled) {
+        const s = e.selectionStart, en = e.selectionEnd;
+        if (key.length === 1) insertInto(e, key);
+        else if (key === 'Backspace') {
+          if (s === en && s > 0) e.setSelectionRange(s - 1, s);
+          if (e.selectionStart !== e.selectionEnd) insertInto(e, '');
+        } else if (key === 'ArrowLeft') {
+          const p = s === en ? Math.max(0, s - 1) : s;
+          e.setSelectionRange(p, p);
+        } else if (key === 'ArrowRight') {
+          const p = s === en ? Math.min(e.value.length, en + 1) : en;
+          e.setSelectionRange(p, p);
+        } else if (key === 'ArrowUp' || key === 'ArrowDown') {
+          if (e === ta) moveVertical(key === 'ArrowUp' ? -1 : 1);
+        }
+      }
+      if (e === ta) { updatePos(); keepCaretVisible(); }
+    }
+
+    // フォーカスを奪わないように pointerdown で処理する
+    kb.addEventListener('pointerdown', ev => {
+      const b = ev.target.closest('button');
+      ev.preventDefault();
+      if (!b) return;
+      if (b.dataset.target) { setTarget(b.dataset.target); return; }
+      if (b.dataset.key) { press(b.dataset.key); startRepeat(b.dataset.key); return; }
+      const k = b.dataset.k;
+      switch (k) {
+        case '{shift}': {
+          const now = Date.now();
+          shift = shift === 0 ? (now - lastShiftTap < 350 ? 2 : 1) : (shift === 1 && now - lastShiftTap < 350 ? 2 : 0);
+          lastShiftTap = now;
+          render();
+          return;
+        }
+        case '{123}': layer = '123'; render(); return;
+        case '{sym}': layer = 'sym'; render(); return;
+        case '{abc}': layer = 'abc'; render(); return;
+        case '{bs}': press('Backspace'); startRepeat('Backspace'); return;
+        case '{space}': press(' '); return;
+        case '{enter}': press('Enter'); return;
+      }
+      const ch = layer === 'abc' && shift ? k.toUpperCase() : k;
+      press(ch);
+      if (shift === 1) { shift = 0; render(); }
+    });
+    // 長押しでリピート (矢印・削除)
+    let repeatTimer = null;
+    function startRepeat(key) {
+      stopRepeat();
+      repeatTimer = setTimeout(function tick() {
+        press(key);
+        repeatTimer = setTimeout(tick, 60);
+      }, 450);
+    }
+    function stopRepeat() { clearTimeout(repeatTimer); repeatTimer = null; }
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => kb.addEventListener(t, stopRepeat));
+    window.addEventListener('blur', stopRepeat);
+
+    // 画面をタップした方を入力先にする
+    $('terminal').addEventListener('pointerdown', () => setTarget('terminal'));
+    $('editor-area').addEventListener('pointerdown', () => { if (!codeWrap.hidden) setTarget('editor'); });
+
+    render();
+    setTarget('terminal');
+  }
 })();
