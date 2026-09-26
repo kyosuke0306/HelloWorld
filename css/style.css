@@ -355,3 +355,19 @@ body.vkbd-on.on-work .version-badge { display: none; }
 .vk-key:active, .vk-nav:active { filter: brightness(1.4); }
 #work-screen.has-vkbd .editor-empty p { font-size: 12px; }
 #work-screen.has-vkbd .editor-empty svg { display: none; }
+
+/* タッチ端末: 自前のカーソルを表示 (フォーカスに依存しない) */
+.term-mirror { display: none; }
+#work-screen.has-vkbd #term-input {
+  position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px;
+}
+#work-screen.has-vkbd .term-mirror { display: inline; white-space: pre-wrap; word-break: break-all; }
+#work-screen.has-vkbd .input-wrap { display: inline; }
+.caret-block { background: var(--term-fg); color: var(--term-bg); animation: blink 1s steps(1) infinite; }
+#work-screen.has-vkbd .code-input { caret-color: transparent; }
+.fake-caret {
+  position: absolute; left: 0; top: 0; width: 2px; height: 20px;
+  background: #aeafad; pointer-events: none;
+  animation: blink 1s steps(1) infinite;
+}
+.fake-caret[hidden] { display: none; }

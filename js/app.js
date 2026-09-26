@@ -113,6 +113,7 @@
   }
   function renderPrompt() {
     promptEl.innerHTML = state.pending + PROMPT_HTML;
+    if (window.HW_VKBD) window.HW_VKBD.refresh();
     scrollBottom();
   }
   // 生テキストを書き込む (html=false ならエスケープ)
@@ -217,7 +218,12 @@
       renderPrompt();
     }
   });
-  function moveCaretEnd() { requestAnimationFrame(() => input.setSelectionRange(input.value.length, input.value.length)); }
+  function moveCaretEnd() {
+    requestAnimationFrame(() => {
+      input.setSelectionRange(input.value.length, input.value.length);
+      if (window.HW_VKBD) window.HW_VKBD.refresh();
+    });
+  }
 
   termEl.addEventListener('mouseup', () => {
     if (!window.getSelection().toString()) input.focus({ preventScroll: true });
@@ -798,6 +804,7 @@
     ta.scrollTop = 0;
     ta.scrollLeft = 0;
     ta.setSelectionRange(0, 0);
+    if (window.HW_VKBD) window.HW_VKBD.refresh();
   }
   function focusEditor() {
     if (window.HW_VKBD) { window.HW_VKBD.setTarget('editor'); return; }
@@ -838,13 +845,16 @@
   ta.addEventListener('scroll', syncScroll);
   ['keyup', 'click', 'select'].forEach(ev => ta.addEventListener(ev, updatePos));
 
-  function insertText(text) {
-    ta.focus();
+  function insertText(text) { insertInto(ta, text); }
+  // 指定した要素に文字を挿入する (フォーカスが別の場所にあっても対象に入る)
+  function insertInto(el, text) {
     let ok = false;
-    try { ok = document.execCommand('insertText', false, text); } catch (e) { ok = false; }
+    if (document.activeElement === el && !window.HW_VKBD) {
+      try { ok = document.execCommand('insertText', false, text); } catch (e) { ok = false; }
+    }
     if (!ok) {
-      ta.setRangeText(text, ta.selectionStart, ta.selectionEnd, 'end');
-      ta.dispatchEvent(new Event('input'));
+      el.setRangeText(text, el.selectionStart, el.selectionEnd, 'end');
+      el.dispatchEvent(new Event('input'));
     }
   }
 
@@ -1019,28 +1029,59 @@
     }
 
     function el() { return target === 'editor' ? ta : input; }
+    // 入力先の切り替え。iOS ではプログラムからの focus が効かないことがあるため、
+    // フォーカスには頼らず、キー入力は直接対象の要素に書き込む。
     function setTarget(t) {
-      if (t === 'editor' && codeWrap.hidden) t = 'terminal';
       target = t;
       work.classList.toggle('target-editor', t === 'editor');
       work.classList.toggle('target-terminal', t === 'terminal');
       kb.querySelectorAll('.vk-tgt').forEach(b => b.classList.toggle('active', b.dataset.target === t));
-      const e = el();
-      e.focus({ preventScroll: true });
-      if (t === 'terminal') moveCaretEnd();
-      requestAnimationFrame(scrollBottom);
+      const other = t === 'editor' ? input : ta;
+      if (document.activeElement === other) other.blur();
+      requestAnimationFrame(() => { scrollBottom(); refreshCarets(); });
     }
-    window.HW_VKBD = { setTarget };
+    window.HW_VKBD = { setTarget, refresh: () => refreshCarets() };
 
-    function insertInto(e, text) {
-      e.focus({ preventScroll: true });
-      let ok = false;
-      try { ok = document.execCommand('insertText', false, text); } catch (err) { ok = false; }
-      if (!ok) {
-        e.setRangeText(text, e.selectionStart, e.selectionEnd, 'end');
-        e.dispatchEvent(new Event('input'));
-      }
+    // --- 自前のカーソル表示 ---
+    const mirror = document.createElement('span');
+    mirror.className = 'term-mirror';
+    input.parentNode.appendChild(mirror);
+    const fakeCaret = document.createElement('div');
+    fakeCaret.className = 'fake-caret';
+    $('code-scroll').appendChild(fakeCaret);
+    let charW = 0;
+    function measureChar() {
+      const m = document.createElement('span');
+      m.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;font:inherit';
+      m.textContent = 'M'.repeat(20);
+      codeWrap.appendChild(m);
+      charW = m.getBoundingClientRect().width / 20;
+      m.remove();
     }
+    function refreshCarets() {
+      // ターミナル
+      const v = input.value, p = input.selectionStart == null ? v.length : input.selectionStart;
+      const showT = target === 'terminal';
+      mirror.innerHTML = esc(v.slice(0, p)) +
+        (showT ? `<span class="caret-block">${esc(v[p] || ' ')}</span>` + esc(v.slice(p + 1)) : esc(v.slice(p)));
+      // エディタ
+      if (target === 'editor' && !codeWrap.hidden) {
+        if (!charW) measureChar();
+        const before = ta.value.slice(0, ta.selectionStart);
+        const line = before.split('\n').length - 1;
+        const col = before.length - before.lastIndexOf('\n') - 1;
+        fakeCaret.style.transform = `translate(${col * charW - ta.scrollLeft}px, ${line * 20 - ta.scrollTop}px)`;
+        fakeCaret.hidden = false;
+        // アニメーションを先頭から
+        fakeCaret.style.animation = 'none';
+        void fakeCaret.offsetWidth;
+        fakeCaret.style.animation = '';
+      } else fakeCaret.hidden = true;
+    }
+    ['input', 'keyup', 'click', 'select', 'scroll'].forEach(t => ta.addEventListener(t, () => requestAnimationFrame(refreshCarets)));
+    ['input', 'keyup', 'click', 'select'].forEach(t => input.addEventListener(t, () => requestAnimationFrame(refreshCarets)));
+    document.addEventListener('selectionchange', () => requestAnimationFrame(refreshCarets));
+    window.addEventListener('resize', () => { charW = 0; refreshCarets(); });
     function moveVertical(dir) {
       const v = ta.value, s = ta.selectionStart;
       const ls = v.lastIndexOf('\n', s - 1) + 1;
@@ -1079,7 +1120,7 @@
     // キーを送る: まず既存の keydown ハンドラに渡し、処理されなければ既定動作を行う
     function press(key) {
       const e = el();
-      if (document.activeElement !== e) e.focus({ preventScroll: true });
+      if (e === ta && (codeWrap.hidden || !state.active)) return; // 開いているファイルが無い
       const ev = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
       const notHandled = e.dispatchEvent(ev);
       if (notHandled) {
@@ -1099,6 +1140,7 @@
         }
       }
       if (e === ta) { updatePos(); keepCaretVisible(); }
+      refreshCarets();
     }
 
     // フォーカスを奪わないように pointerdown で処理する
