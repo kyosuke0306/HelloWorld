@@ -905,3 +905,14 @@ body.vkbd-on.on-work .version-badge { display: none; }
 /* プレビュー時は答えを言語のポップアップの上に出す */
 .answer-overlay { z-index: 110; }
 .answer-kicker.preview { color: #60a5fa; }
+
+/* ---------- ポップアップ: BEST 表示 ---------- */
+.li-bestbar {
+  flex: none; display: flex; align-items: baseline; justify-content: center; gap: 10px;
+  padding: 10px 16px 8px; background: #111; border-top: 1px solid #2a2a2a;
+  font-family: var(--mono); cursor: default;
+}
+.li-bestbar .li-best-label { font-size: 11px; letter-spacing: .25em; color: #888; }
+.li-bestbar .li-best { font-size: 22px; font-weight: bold; color: #fce94f; font-variant-numeric: tabular-nums; text-shadow: 0 0 10px rgba(252, 233, 79, .35); }
+.li-bestbar .li-best.none { font-size: 14px; color: #666; text-shadow: none; letter-spacing: .1em; }
+.li-bestbar + .li-foot { border-top: none; padding-top: 4px; }

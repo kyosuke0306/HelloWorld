@@ -297,7 +297,7 @@
       $('li-langdots').innerHTML = LANG_ORDER.map(l => `<i${l === lang ? ' class="on"' : ''}></i>`).join('');
       $('li-panel').style.setProperty('--glow', getComputedStyle(btn).getPropertyValue('--glow'));
       const best = loadBest()[lang];
-      $('li-best').textContent = best ? fmtTime(best) : '--:--.--';
+      $('li-best').textContent = best ? fmtTime(best) : 'NO RECORD';
       $('li-best').classList.toggle('none', !best);
       const head = document.querySelector('.li-head');
       head.classList.remove('in-up', 'in-down');
@@ -334,7 +334,6 @@
   });
   $('li-start').addEventListener('click', () => { hideLangInfo(); startLang(infoLang); });
   $('li-answer').addEventListener('click', () => showAnswer(infoLang, 'preview'));
-  $('li-close').addEventListener('click', hideLangInfo);
   $('li-close-bottom').addEventListener('click', hideLangInfo);
   $('lang-info').addEventListener('click', e => { if (e.target === e.currentTarget) hideLangInfo(); });
   {
