@@ -396,8 +396,13 @@
     welcome();
     renderPrompt();
     focusTerminal();
-    startTimer();
+    const free = lang === 'free';
+    $('work-screen').classList.toggle('free-mode', free);
+    if (free) cancelAnimationFrame(timerRAF);
+    else startTimer();
   }
+  // フリーモード: 言語を選ばず、時間も測らず、正解判定もしない
+  $('free-btn').addEventListener('click', () => startLang('free'));
 
   // ---------------------------------------------------------------------
   // ターミナル
@@ -490,6 +495,13 @@
   function welcome() {
     const lang = HW.langs[state.lang];
     const d = new Date(Date.now() - 3600 * 1000 * 5);
+    if (!lang) {
+      writeln('Welcome to Ubuntu 24.04.1 LTS (GNU/Linux 6.8.0-45-generic x86_64)');
+      writeln('');
+      writeln(`Last login: ${d.toDateString().slice(0, 10)} ${d.toTimeString().slice(0, 8)} ${d.getFullYear()} from 192.168.0.10`);
+      writeln('# フリーモード: どの言語でも自由に試せます。時間の計測・正解判定はありません (help でコマンド一覧)', 't-hint');
+      return;
+    }
     writeln('Welcome to Ubuntu 24.04.1 LTS (GNU/Linux 6.8.0-45-generic x86_64)');
     writeln('');
     writeln(`Last login: ${d.toDateString().slice(0, 10)} ${d.toTimeString().slice(0, 8)} ${d.getFullYear()} from 192.168.0.10`);
@@ -728,7 +740,7 @@
         rust: ['  rustc <ファイル名.rs>     Rust ファイルをコンパイル (実行ファイルができる)', '  ./<実行ファイル名>        コンパイルしたプログラムを実行'],
         php: ['  php <ファイル名.php>      PHP プログラムを実行'],
       };
-      s += (HELP[lang] || []).map(l => l + '\n').join('');
+      s += (lang === 'free' ? [...new Set(Object.values(HELP).flat())] : (HELP[lang] || [])).map(l => l + '\n').join('');
       s += '\n手順: ターミナルでファイルを作る → エディタで書く → ターミナルで実行\n';
       io.out(s);
       return 0;
@@ -1146,6 +1158,7 @@
     return /^hello[\s,、]*world[!！.]?$/i.test(s);
   }
   function checkSuccess(lang, r) {
+    if (state.lang === 'free') return; // フリーモードは正解判定なし
     if (lang !== state.lang) return;
     if (!isHelloWorld(r.out) || /Segmentation fault|Exception/.test(r.err || '')) return;
     if (!state.solved) {

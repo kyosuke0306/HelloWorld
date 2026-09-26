@@ -916,3 +916,10 @@ body.vkbd-on.on-work .version-badge { display: none; }
 .li-bestbar .li-best { font-size: 22px; font-weight: bold; color: #fce94f; font-variant-numeric: tabular-nums; text-shadow: 0 0 10px rgba(252, 233, 79, .35); }
 .li-bestbar .li-best.none { font-size: 14px; color: #666; text-shadow: none; letter-spacing: .1em; }
 .li-bestbar + .li-foot { border-top: none; padding-top: 4px; }
+
+/* ---------- フリーモード ---------- */
+.start-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+.start-actions .tutorial-btn { margin-top: 0; }
+.free-btn { border-color: #2d4a73; color: #9cc3ff; }
+.free-btn:hover { border-color: #60a5fa; color: #fff; }
+#work-screen.free-mode .titlebar-right { display: none; }
