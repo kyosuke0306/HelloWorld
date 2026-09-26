@@ -778,3 +778,77 @@ body.vkbd-on.on-work .version-badge { display: none; }
   .li-year { font-size: 34px; margin-bottom: 10px; }
   .li-list.big li, .li-trivia { font-size: 18px; }
 }
+
+/* ---------- トップ画面: 言語タイルの動き ---------- */
+.lang-btn[data-lang="python"] { --glow: 55, 118, 171; }
+.lang-btn[data-lang="java"] { --glow: 231, 111, 0; }
+.lang-btn[data-lang="c"] { --glow: 101, 154, 210; }
+.lang-btn[data-lang="cpp"] { --glow: 0, 89, 156; }
+.lang-btn[data-lang="javascript"] { --glow: 247, 223, 30; }
+.lang-btn[data-lang="ruby"] { --glow: 204, 52, 45; }
+.lang-btn[data-lang="go"] { --glow: 0, 173, 216; }
+.lang-btn[data-lang="rust"] { --glow: 222, 165, 132; }
+.lang-btn[data-lang="php"] { --glow: 119, 123, 180; }
+.lang-btn { overflow: hidden; transition: border-color .2s, background .2s, transform .15s, box-shadow .25s; }
+.lang-btn::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at 50% 35%, rgba(var(--glow), .35), transparent 65%);
+  opacity: 0; transition: opacity .25s;
+}
+.lang-btn .lang-logo { transition: transform .25s, filter .25s; }
+@media (hover: hover) {
+  .lang-btn:hover {
+    border-color: rgba(var(--glow), .8); background: #202020;
+    box-shadow: 0 0 18px rgba(var(--glow), .35), inset 0 0 12px rgba(var(--glow), .12);
+  }
+  .lang-btn:hover::after { opacity: 1; }
+  .lang-btn:hover .lang-logo { transform: translateY(-2px) scale(1.08); filter: drop-shadow(0 0 8px rgba(var(--glow), .7)); }
+}
+.lang-btn.pressed {
+  border-color: rgba(var(--glow), 1);
+  animation: tile-pulse .28s ease-out;
+  box-shadow: 0 0 28px rgba(var(--glow), .7), inset 0 0 18px rgba(var(--glow), .25);
+}
+.lang-btn.pressed::after { opacity: 1; }
+.lang-btn.pressed .lang-logo { transform: scale(1.18); filter: drop-shadow(0 0 12px rgba(var(--glow), .9)); }
+@keyframes tile-pulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(.94); }
+  100% { transform: scale(1.03); }
+}
+/* 表示時に1枚ずつ浮かび上がる */
+.lang-list.enter .lang-btn { animation: tile-in .45s cubic-bezier(.2, .8, .3, 1.2) both; animation-delay: calc(var(--i, 0) * 60ms + 200ms); }
+@keyframes tile-in {
+  from { opacity: 0; transform: translateY(14px) scale(.96); }
+  to { opacity: 1; transform: none; }
+}
+/* ときどき光が走る */
+.lang-btn::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .09), transparent);
+  transform: skewX(-15deg);
+  animation: tile-shine 6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 180ms + 1.5s);
+}
+@keyframes tile-shine {
+  0%, 80% { left: -60%; }
+  100% { left: 130%; }
+}
+
+/* ---------- ポップアップ: 言語は上下、項目は左右 ---------- */
+.li-panel { touch-action: none; }
+.li-head.in-up, .li-stage:has(.li-slide.in-up) { animation: slide-in-up .26s ease-out; }
+.li-head.in-down { animation: slide-in-down .26s ease-out; }
+.li-slide.in-up { animation: slide-in-up .26s ease-out; }
+.li-slide.in-down { animation: slide-in-down .26s ease-out; }
+@keyframes slide-in-up { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+@keyframes slide-in-down { from { opacity: 0; transform: translateY(-28px); } to { opacity: 1; transform: none; } }
+.li-stage.bump-r .li-slide { animation: bump-r .25s ease-out; }
+.li-stage.bump-l .li-slide { animation: bump-l .25s ease-out; }
+@keyframes bump-r { 40% { transform: translateX(-8px); } }
+@keyframes bump-l { 40% { transform: translateX(8px); } }
+.li-langdots {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  flex-direction: column; padding: 0; gap: 5px;
+}
+.li-langdots i.on { width: 5px; height: 14px; }

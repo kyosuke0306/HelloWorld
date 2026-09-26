@@ -241,9 +241,9 @@
     document.body.classList.toggle('on-work', id === 'work-screen');
   }
 
-  // 言語をタップ → 説明のポップアップ (ストーリー形式) → Start
-  //   左右の端をタップ: 前後の項目 (最後の項目の次は次の言語)
-  //   左右にスワイプ: 前後の言語
+  // 言語をタップ → 説明のポップアップ → Start
+  //   項目: 左右の端をタップ / 左右にスワイプ
+  //   言語: 上下にスワイプ
   const LANG_ORDER = [...document.querySelectorAll('.lang-btn')].map(b => b.dataset.lang);
   let infoLang = null, infoItem = 0;
   const split = (t, sep) => t.split(sep).map(x => x.trim()).filter(Boolean);
@@ -281,27 +281,37 @@
       $('li-best').textContent = best ? fmtTime(best) : '--:--.--';
       $('li-best').classList.toggle('none', !best);
       const head = document.querySelector('.li-head');
-      head.classList.remove('swap');
-      if (anim) { void head.offsetWidth; head.classList.add('swap'); }
+      head.classList.remove('in-up', 'in-down');
+      if (anim === 'in-up' || anim === 'in-down') { void head.offsetWidth; head.classList.add(anim); }
     }
     renderInfo(anim);
     $('lang-info').hidden = false;
   }
   function stepItem(d) {
     const n = infoSlides(infoLang).length;
-    const i = LANG_ORDER.indexOf(infoLang);
-    if (infoItem + d >= n) showLangInfo(LANG_ORDER[(i + 1) % LANG_ORDER.length], 0, 'in-right');
-    else if (infoItem + d < 0) {
-      if (i > 0) showLangInfo(LANG_ORDER[i - 1], infoSlides(LANG_ORDER[i - 1]).length - 1, 'in-left');
-    } else { infoItem += d; renderInfo(d > 0 ? 'in-right' : 'in-left'); }
+    const next = infoItem + d;
+    if (next < 0 || next >= n) { bump(d > 0 ? 'bump-r' : 'bump-l'); return; }
+    infoItem = next;
+    renderInfo(d > 0 ? 'in-right' : 'in-left');
   }
   function stepLang(d) {
     const i = LANG_ORDER.indexOf(infoLang);
-    showLangInfo(LANG_ORDER[(i + d + LANG_ORDER.length) % LANG_ORDER.length], 0, d > 0 ? 'in-right' : 'in-left');
+    showLangInfo(LANG_ORDER[(i + d + LANG_ORDER.length) % LANG_ORDER.length], 0, d > 0 ? 'in-up' : 'in-down');
+  }
+  function bump(cls) {
+    const st = $('li-stage');
+    st.classList.remove('bump-l', 'bump-r');
+    void st.offsetWidth;
+    st.classList.add(cls);
   }
   const hideLangInfo = () => { $('lang-info').hidden = true; };
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.addEventListener('click', () => showLangInfo(btn.dataset.lang, 0));
+  document.querySelectorAll('.lang-btn').forEach((btn, i) => {
+    btn.style.setProperty('--i', i);
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('pressed')) return;
+      btn.classList.add('pressed');
+      setTimeout(() => { btn.classList.remove('pressed'); showLangInfo(btn.dataset.lang, 0); }, 280);
+    });
   });
   $('li-start').addEventListener('click', () => { hideLangInfo(); startLang(infoLang); });
   $('li-close').addEventListener('click', hideLangInfo);
@@ -315,7 +325,8 @@
       const dx = e.clientX - sx, dy = e.clientY - sy;
       sx = null;
       if (e.target.closest('button') || e.target.closest('.li-foot')) return;
-      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) { stepLang(dx < 0 ? 1 : -1); return; }
+      if (Math.abs(dy) > 40 && Math.abs(dy) > Math.abs(dx) * 1.2) { stepLang(dy < 0 ? 1 : -1); return; }
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2) { stepItem(dx < 0 ? 1 : -1); return; }
       if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
         const r = panel.getBoundingClientRect();
         stepItem(e.clientX < r.left + r.width * 0.35 ? -1 : 1);
@@ -340,6 +351,8 @@
   });
 
   function goHome() {
+    const list = document.querySelector('.lang-list');
+    list.classList.remove('enter'); void list.offsetWidth; list.classList.add('enter');
     cancelAnimationFrame(timerRAF);
     renderBest();
     showScreen('start-screen');
