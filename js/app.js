@@ -60,7 +60,7 @@
   $('again-btn').addEventListener('click', () => { hideSuccess(); startLang(state.lang); });
   $('other-btn').addEventListener('click', () => { hideSuccess(); goHome(); });
   $('success-overlay').addEventListener('click', e => {
-    if (e.target === e.currentTarget || e.target.closest('.maru')) hideSuccess();
+    if (e.target === e.currentTarget || e.target.classList.contains('success-box')) hideSuccess();
   });
 
   function goHome() {
@@ -691,13 +691,13 @@
     if (lang !== state.lang) return;
     if (!isHelloWorld(r.out) || /Segmentation fault|Exception/.test(r.err || '')) return;
     state.solved = true;
-    const label = HW.langs[lang].label;
-    $('success-sub').textContent = `${label} で「${r.out.trim()}」を出力できました`;
     setTimeout(() => {
       $('success-overlay').hidden = false;
       // アニメーションを毎回再生する
-      const svg = document.querySelector('.maru');
-      svg.replaceWith(svg.cloneNode(true));
+      const box = document.querySelector('.success-box');
+      box.replaceWith(box.cloneNode(true));
+      $('again-btn').addEventListener('click', () => { hideSuccess(); startLang(state.lang); });
+      $('other-btn').addEventListener('click', () => { hideSuccess(); goHome(); });
     }, 350);
   }
   function hideSuccess() { $('success-overlay').hidden = true; }

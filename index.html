@@ -107,15 +107,15 @@
 
   <!-- 正解オーバーレイ -->
   <div id="success-overlay" class="success-overlay" hidden>
-    <svg class="maru" viewBox="0 0 200 200" aria-hidden="true">
-      <circle cx="100" cy="100" r="80" />
-    </svg>
-    <div class="success-panel">
-      <p class="success-text">正解！</p>
-      <p class="success-sub" id="success-sub"></p>
+    <div class="success-box">
+      <svg class="maru" viewBox="0 0 200 200" aria-hidden="true">
+        <circle class="maru-bg" cx="100" cy="100" r="92" />
+        <path class="maru-check" d="M58 104 L88 134 L144 74" />
+      </svg>
+      <p class="success-text">Correct!</p>
       <div class="success-actions">
-        <button id="again-btn">もう一度</button>
-        <button id="other-btn" class="primary">他の言語に挑戦</button>
+        <button id="again-btn">Try Again</button>
+        <button id="other-btn" class="primary">Next Language</button>
       </div>
     </div>
   </div>
