@@ -241,49 +241,71 @@
     document.body.classList.toggle('on-work', id === 'work-screen');
   }
 
-  // 言語をタップ → 説明のポップアップ → Start
+  // 言語をタップ → 説明のポップアップ (ストーリー形式) → Start
+  //   左右の端をタップ: 前後の項目 (最後の項目の次は次の言語)
+  //   左右にスワイプ: 前後の言語
   const LANG_ORDER = [...document.querySelectorAll('.lang-btn')].map(b => b.dataset.lang);
-  let infoLang = null;
-  function showLangInfo(lang, dir) {
-    const info = (window.HW_LANG_INFO || {})[lang];
-    if (!info) { startLang(lang); return; }
-    infoLang = lang;
-    const btn = document.querySelector(`.lang-btn[data-lang="${lang}"]`);
-    $('li-logo').src = btn.querySelector('.lang-logo').getAttribute('src');
-    $('li-name').textContent = HW.langs[lang].label;
-    $('li-meta').textContent = `${info.year} · ${info.country} · ${info.creator}`;
-    const rows = [
-      ['タイプ', info.type],
-      ['強み', info.strengths],
-      ['用途', info.uses],
-      ['書き方', info.style],
-      ['豆知識', info.trivia],
-      ['拡張子', HW.langs[lang].ext, 'ext'],
+  let infoLang = null, infoItem = 0;
+  const split = (t, sep) => t.split(sep).map(x => x.trim()).filter(Boolean);
+  function infoSlides(lang) {
+    const info = window.HW_LANG_INFO[lang];
+    const list = (items, cls) => `<ul class="li-list ${cls || ''}">${items.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+    return [
+      { en: 'PROFILE', ja: 'プロフィール', html:
+        `<div class="li-year">${esc(info.year)}</div>` +
+        `<dl class="li-prof"><dt>国</dt><dd>${esc(info.country)}</dd><dt>作者</dt><dd>${esc(info.creator)}</dd>` +
+        `<dt>タイプ</dt><dd>${esc(info.type)}</dd><dt>拡張子</dt><dd class="ext">${esc(HW.langs[lang].ext)}</dd></dl>` },
+      { en: 'STRENGTHS', ja: '強み', html: list(split(info.strengths, /[・、]/), 'big') },
+      { en: 'USE CASES', ja: '使われる場面', html: list(split(info.uses, '、'), 'chips') },
+      { en: 'SYNTAX', ja: '書き方の特徴', html: list(split(info.style, '、'), 'big') },
+      { en: 'TRIVIA', ja: '豆知識', html: `<p class="li-trivia">${esc(info.trivia)}</p>` },
     ];
-    $('li-rows').innerHTML = rows.map(([k, v, cls]) => `<dt>${k}</dt><dd${cls ? ` class="${cls}"` : ''}>${esc(v)}</dd>`).join('');
-    $('li-dots').innerHTML = LANG_ORDER.map(l => `<i${l === lang ? ' class="on"' : ''}></i>`).join('');
-    const best = loadBest()[lang];
-    $('li-best').textContent = best ? fmtTime(best) : '--:--.--';
-    $('li-best').classList.toggle('none', !best);
-    const content = $('li-content');
-    content.classList.remove('in-left', 'in-right');
-    if (dir) { void content.offsetWidth; content.classList.add(dir > 0 ? 'in-right' : 'in-left'); }
+  }
+  function renderInfo(anim) {
+    const slides = infoSlides(infoLang);
+    const sl = slides[infoItem];
+    $('li-stage').innerHTML = `<div class="li-slide ${anim || ''}"><p class="li-label"><span>${sl.en}</span>${sl.ja}</p>${sl.html}</div>`;
+    $('li-progress').innerHTML = slides.map((_, i) => `<i class="${i < infoItem ? 'done' : i === infoItem ? 'on' : ''}"></i>`).join('');
+  }
+  function showLangInfo(lang, item, anim) {
+    if (!(window.HW_LANG_INFO || {})[lang]) { startLang(lang); return; }
+    const changedLang = lang !== infoLang || $('lang-info').hidden;
+    infoLang = lang;
+    infoItem = item || 0;
+    if (changedLang) {
+      const btn = document.querySelector(`.lang-btn[data-lang="${lang}"]`);
+      $('li-logo').src = btn.querySelector('.lang-logo').getAttribute('src');
+      $('li-name').textContent = HW.langs[lang].label;
+      $('li-langdots').innerHTML = LANG_ORDER.map(l => `<i${l === lang ? ' class="on"' : ''}></i>`).join('');
+      const best = loadBest()[lang];
+      $('li-best').textContent = best ? fmtTime(best) : '--:--.--';
+      $('li-best').classList.toggle('none', !best);
+      const head = document.querySelector('.li-head');
+      head.classList.remove('swap');
+      if (anim) { void head.offsetWidth; head.classList.add('swap'); }
+    }
+    renderInfo(anim);
     $('lang-info').hidden = false;
   }
-  function moveLangInfo(d) {
+  function stepItem(d) {
+    const n = infoSlides(infoLang).length;
     const i = LANG_ORDER.indexOf(infoLang);
-    showLangInfo(LANG_ORDER[(i + d + LANG_ORDER.length) % LANG_ORDER.length], d);
+    if (infoItem + d >= n) showLangInfo(LANG_ORDER[(i + 1) % LANG_ORDER.length], 0, 'in-right');
+    else if (infoItem + d < 0) {
+      if (i > 0) showLangInfo(LANG_ORDER[i - 1], infoSlides(LANG_ORDER[i - 1]).length - 1, 'in-left');
+    } else { infoItem += d; renderInfo(d > 0 ? 'in-right' : 'in-left'); }
+  }
+  function stepLang(d) {
+    const i = LANG_ORDER.indexOf(infoLang);
+    showLangInfo(LANG_ORDER[(i + d + LANG_ORDER.length) % LANG_ORDER.length], 0, d > 0 ? 'in-right' : 'in-left');
   }
   const hideLangInfo = () => { $('lang-info').hidden = true; };
   document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.addEventListener('click', () => showLangInfo(btn.dataset.lang));
+    btn.addEventListener('click', () => showLangInfo(btn.dataset.lang, 0));
   });
   $('li-start').addEventListener('click', () => { hideLangInfo(); startLang(infoLang); });
   $('li-close').addEventListener('click', hideLangInfo);
-  $('li-prev').addEventListener('click', () => moveLangInfo(-1));
-  $('li-next').addEventListener('click', () => moveLangInfo(1));
   $('lang-info').addEventListener('click', e => { if (e.target === e.currentTarget) hideLangInfo(); });
-  // パネルの左右の端をタップ / スワイプで前後の言語へ
   {
     const panel = $('li-panel');
     let sx = null, sy = 0;
@@ -292,13 +314,11 @@
       if (sx === null) return;
       const dx = e.clientX - sx, dy = e.clientY - sy;
       sx = null;
-      if (e.target.closest('button')) return;
-      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) { moveLangInfo(dx < 0 ? 1 : -1); return; }
+      if (e.target.closest('button') || e.target.closest('.li-foot')) return;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) { stepLang(dx < 0 ? 1 : -1); return; }
       if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
         const r = panel.getBoundingClientRect();
-        const edge = Math.max(44, r.width * 0.15);
-        if (e.clientX < r.left + edge) moveLangInfo(-1);
-        else if (e.clientX > r.right - edge) moveLangInfo(1);
+        stepItem(e.clientX < r.left + r.width * 0.35 ? -1 : 1);
       }
     });
     panel.addEventListener('pointercancel', () => { sx = null; });
@@ -306,8 +326,10 @@
   document.addEventListener('keydown', e => {
     if ($('lang-info').hidden) return;
     if (e.key === 'Escape') hideLangInfo();
-    if (e.key === 'ArrowRight') moveLangInfo(1);
-    if (e.key === 'ArrowLeft') moveLangInfo(-1);
+    if (e.key === 'ArrowRight') stepItem(1);
+    if (e.key === 'ArrowLeft') stepItem(-1);
+    if (e.key === 'ArrowDown') stepLang(1);
+    if (e.key === 'ArrowUp') stepLang(-1);
     if (e.key === 'Enter') { hideLangInfo(); startLang(infoLang); }
   });
   $('back-btn').addEventListener('click', goHome);
