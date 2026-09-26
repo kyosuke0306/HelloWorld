@@ -430,8 +430,21 @@ body.vkbd-on.on-work .version-badge { display: none; }
   background: #2a2a2a; color: #ccc; border: none; font-size: 20px; cursor: pointer;
 }
 .tutorial-body { overflow-y: auto; padding: 0 16px 16px; color: #ddd; font-size: 14px; line-height: 1.6; }
-.tutorial-body section { margin-bottom: 16px; }
-.tutorial-body h3 { margin: 0 0 6px; font-size: 15px; color: #fff; }
+.tutorial-body section {
+  margin-bottom: 18px; padding: 2px 0 2px 14px;
+  border-left: 2px solid #2f2f2f;
+}
+.tutorial-body section:first-child { border-left-color: #3b82f6; }
+.tutorial-body h3 {
+  display: flex; align-items: baseline; gap: 10px;
+  margin: 0 0 8px; font-size: 15px; font-weight: 600; color: #fff;
+}
+.tut-num { font-family: var(--mono); font-size: 12px; color: #3b82f6; font-weight: bold; }
+.tut-en {
+  margin-left: auto;
+  font-family: var(--mono); font-size: 10px; font-weight: normal;
+  letter-spacing: .18em; color: #666;
+}
 .tutorial-body p { margin: 0 0 6px; }
 .tutorial-body ol, .tutorial-body ul { margin: 0 0 6px; padding-left: 22px; }
 .tutorial-body li { margin-bottom: 3px; }

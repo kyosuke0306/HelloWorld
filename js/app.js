@@ -784,8 +784,8 @@
   function fileIcon(name) {
     const f = state.files.get(name);
     const ext = extOf(name);
-    if (f && f.kind === 'exec') return '<span class="ficon bin">⚙</span>';
-    const map = { py: ['py', 'py'], java: ['java', 'J'], c: ['c', 'C'], h: ['c', 'h'], class: ['class', '☕'] };
+    if (f && f.kind === 'exec') return '<span class="ficon bin">$</span>';
+    const map = { py: ['py', 'py'], java: ['java', 'J'], c: ['c', 'C'], h: ['c', 'h'], class: ['class', 'J'] };
     const [cls, label] = map[ext] || ['txt', '≡'];
     return `<span class="ficon ${cls}">${label}</span>`;
   }
