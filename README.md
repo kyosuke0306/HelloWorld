@@ -1,4 +1,4 @@
-# Hello World 練習
+# HelloWorld
 
 いろいろなプログラミング言語で「Hello World」を出力する練習ができる Web アプリです。
 本物そっくりの **擬似ターミナル** と **擬似エディタ (VS Code 風)** を使って、
@@ -27,3 +27,5 @@
 ## ローカルで確認
 
 `index.html` をブラウザで開くだけで動きます。
+
+言語アイコン: Python / Java は [devicon](https://github.com/devicons/devicon) (MIT, `icons/lang/LICENSE-devicon.txt`)。各ロゴの商標は各権利者に帰属します。

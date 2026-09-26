@@ -1,5 +1,5 @@
 {
-  "name": "Hello World 練習",
+  "name": "HelloWorld",
   "short_name": "HelloWorld",
   "start_url": "./",
   "display": "standalone",

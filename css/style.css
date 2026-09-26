@@ -40,36 +40,37 @@ button { font-family: inherit; }
 
 /* ---------- スタート画面 ---------- */
 #start-screen {
+  position: relative;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 50% 30%, #1f1f1f, #0b0b0b 70%);
+  background: #000 url("../icons/icon.svg") center / min(92vw, 92vh) no-repeat;
   overflow-y: auto;
   padding: 24px 16px;
 }
-.start-inner { text-align: center; max-width: 520px; width: 100%; }
-.start-logo { border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,.6); }
-.start-inner h1 { font-size: 28px; margin: 18px 0 8px; color: #fff; letter-spacing: .02em; }
-.start-lead { color: #aaa; line-height: 1.7; margin: 0 0 28px; }
+#start-screen::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, .55);
+  pointer-events: none;
+}
+.start-inner { position: relative; text-align: center; max-width: 420px; width: 100%; }
+.start-inner h1 {
+  font-family: var(--mono); font-size: 40px; margin: 0 0 28px;
+  color: #fff; letter-spacing: .02em; text-shadow: 0 2px 12px #000;
+}
 .lang-list { display: flex; flex-direction: column; gap: 12px; }
 .lang-btn {
   display: flex; align-items: center; gap: 16px;
-  padding: 16px 20px;
-  background: #1e1e1e; color: #eee;
-  border: 1px solid #333; border-radius: 10px;
+  padding: 14px 20px;
+  background: rgba(30, 30, 30, .88); color: #eee;
+  border: 1px solid #444; border-radius: 10px;
   font-size: 18px; cursor: pointer; text-align: left;
+  backdrop-filter: blur(4px);
   transition: border-color .15s, background .15s, transform .1s;
 }
-.lang-btn:hover { border-color: var(--vs-status); background: #252526; }
+.lang-btn:hover { border-color: var(--vs-status); background: rgba(37, 37, 38, .95); }
 .lang-btn:active { transform: scale(.98); }
-.lang-badge {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 40px; height: 40px; border-radius: 8px;
-  font-family: var(--mono); font-weight: bold; font-size: 16px; color: #fff;
-}
-.lang-badge.py { background: linear-gradient(135deg, #3572a5 50%, #ffd43b 50%); text-shadow: 0 0 3px #000; }
-.lang-badge.java { background: #e76f00; }
-.lang-badge.c { background: #555599; }
-.start-flow { margin-top: 28px; color: #777; font-size: 13px; }
+.lang-logo { width: 40px; height: 40px; flex: none; }
 
 /* ---------- 作業画面 ---------- */
 #work-screen {
