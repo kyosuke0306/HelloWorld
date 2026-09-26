@@ -645,3 +645,14 @@ body.vkbd-on.on-work .version-badge { display: none; }
 .answer-actions button.primary { background: #22c55e; border-color: #22c55e; }
 .tut-term { background: var(--term-bg); color: #fff; }
 .tut-editor { background: var(--vs-bg); color: var(--vs-fg); border: 1px solid #333; }
+.env-table { width: 100%; border-collapse: collapse; margin: 6px 0 4px; font-size: 13px; }
+.env-table th {
+  width: 7em; text-align: left; vertical-align: top; font-weight: normal;
+  color: #888; font-size: 12px; padding: 6px 6px 6px 0; border-bottom: 1px solid #262626; white-space: nowrap;
+}
+.env-table td { padding: 6px 0; border-bottom: 1px solid #262626; color: #ddd; }
+.prompt-anatomy { display: flex; flex-wrap: nowrap; justify-content: center; max-width: 100%; overflow-x: auto; font-family: var(--mono); background: var(--term-bg); padding: 12px 6px 8px; border-radius: 6px; }
+.pa-part { display: flex; flex-direction: column; align-items: center; }
+.pa-text { font-size: clamp(12px, 3.4vw, 16px); padding: 0 1px 3px; border-bottom: 2px solid rgba(255, 255, 255, .25); color: #fff; }
+.pa-part:nth-child(3) .pa-text { border-bottom-color: transparent; }
+.pa-cap { margin-top: 4px; font-family: var(--ui); font-size: 9px; color: #bbb; white-space: nowrap; padding: 0 2px; }

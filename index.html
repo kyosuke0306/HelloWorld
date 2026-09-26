@@ -175,7 +175,37 @@
         </section>
 
         <section>
-          <h3><span class="tut-num">02</span><span class="tut-ja">画面の見方</span><span class="tut-en">SCREEN</span></h3>
+          <h3><span class="tut-num">02</span><span class="tut-ja">環境</span><span class="tut-en">ENVIRONMENT</span></h3>
+          <p>このアプリは、Linux のパソコンを再現した練習用の環境です。本物ではないので、何を打っても壊れません。</p>
+          <table class="env-table">
+            <tbody>
+              <tr><th>OS</th><td>Ubuntu 24.04 LTS (Linux)</td></tr>
+              <tr><th>シェル</th><td>bash</td></tr>
+              <tr><th>ユーザー</th><td><code>user</code></td></tr>
+              <tr><th>作業フォルダ</th><td><code>~/project</code>（<code>/home/user/project</code>）</td></tr>
+              <tr><th>エディタ</th><td>Visual Studio Code 風</td></tr>
+              <tr><th>言語</th><td>Python 3.12 / Java (OpenJDK 21) / C (GCC 13)</td></tr>
+            </tbody>
+          </table>
+          <figure class="fig">
+            <div class="prompt-anatomy">
+              <div class="pa-part"><span class="pa-text p-user">user</span><span class="pa-cap">ユーザー名</span></div>
+              <div class="pa-part"><span class="pa-text p-user">@helloworld</span><span class="pa-cap">コンピューター名</span></div>
+              <div class="pa-part"><span class="pa-text">:</span><span class="pa-cap">&nbsp;</span></div>
+              <div class="pa-part"><span class="pa-text p-path">~/project</span><span class="pa-cap">今いるフォルダ</span></div>
+              <div class="pa-part"><span class="pa-text">$</span><span class="pa-cap">入力待ち</span></div>
+            </div>
+            <figcaption>ターミナルの行頭（プロンプト）の読み方。<code>~</code> はホームフォルダのこと</figcaption>
+          </figure>
+          <ul>
+            <li>作業はすべて <code>~/project</code> フォルダの中で行います（フォルダの移動や作成は不要）</li>
+            <li>インターネットには接続されていません</li>
+            <li>画面を戻る・やり直すと、作ったファイルはリセットされます</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3><span class="tut-num">03</span><span class="tut-ja">画面の見方</span><span class="tut-en">SCREEN</span></h3>
           <figure class="fig">
             <div class="mock-screen">
               <div class="ms-editor">
@@ -203,7 +233,7 @@
         </section>
 
         <section>
-          <h3><span class="tut-num">03</span><span class="tut-ja">流れ</span><span class="tut-en">FLOW</span></h3>
+          <h3><span class="tut-num">04</span><span class="tut-ja">流れ</span><span class="tut-en">FLOW</span></h3>
           <figure class="fig">
             <div class="flow">
               <div class="flow-step"><span class="flow-n">1</span><span class="flow-where t">Terminal</span><span class="flow-what">ファイルを作る</span></div>
@@ -217,8 +247,8 @@
         </section>
 
         <section>
-          <h3><span class="tut-num">04</span><span class="tut-ja">ファイル名</span><span class="tut-en">FILE NAME</span></h3>
-          <p>ファイルは <code>touch ファイル名</code> で作れます。ファイル名は「名前」と「拡張子」でできています。</p>
+          <h3><span class="tut-num">05</span><span class="tut-ja">ファイル名</span><span class="tut-en">FILE NAME</span></h3>
+          <p>ファイル名は「名前」と「拡張子」でできています。</p>
           <figure class="fig">
             <div class="fname">
               <div class="fname-part"><span class="fname-text">hello</span><span class="fname-cap">名前</span></div>
@@ -243,7 +273,7 @@
         </section>
 
         <section>
-          <h3><span class="tut-num">05</span><span class="tut-ja">ターミナル</span><span class="tut-en">TERMINAL</span></h3>
+          <h3><span class="tut-num">06</span><span class="tut-ja">ターミナル</span><span class="tut-en">TERMINAL</span></h3>
           <ul>
             <li>コマンドを入力して <kbd>Enter</kbd> で実行</li>
             <li><code>help</code> で使えるコマンドの一覧を表示</li>
@@ -253,7 +283,7 @@
         </section>
 
         <section>
-          <h3><span class="tut-num">06</span><span class="tut-ja">エディタ</span><span class="tut-en">EDITOR</span></h3>
+          <h3><span class="tut-num">07</span><span class="tut-ja">エディタ</span><span class="tut-en">EDITOR</span></h3>
           <ul>
             <li>ファイルを作ると自動でタブが開きます</li>
             <li>書いた内容は自動で保存されます</li>
@@ -262,7 +292,7 @@
         </section>
 
         <section>
-          <h3><span class="tut-num">07</span><span class="tut-ja">スマホのキーボード</span><span class="tut-en">KEYBOARD</span></h3>
+          <h3><span class="tut-num">08</span><span class="tut-ja">スマホのキーボード</span><span class="tut-en">KEYBOARD</span></h3>
           <figure class="fig">
             <div class="mock-kbd">
               <div class="mk-row">
@@ -284,7 +314,7 @@
         </section>
 
         <section>
-          <h3><span class="tut-num">08</span><span class="tut-ja">タイムアタック</span><span class="tut-en">TIME ATTACK</span></h3>
+          <h3><span class="tut-num">09</span><span class="tut-ja">タイムアタック</span><span class="tut-en">TIME ATTACK</span></h3>
           <figure class="fig fig-row">
             <span class="mock-timer">00:42.1</span>
             <span class="flow-arrow"></span>
