@@ -36,7 +36,7 @@
   // タイトルをターミナルで打ち込むように表示
   function typeTitle() {
     const el = document.querySelector('#start-screen .typed');
-    const text = 'HelloWorld';
+    const text = 'Hello, World!';
     el.textContent = '';
     clearInterval(typeTitle.timer);
     let i = 0;
@@ -151,51 +151,51 @@
   const ANSWERS = {
     python: [
       ['term', 'ファイルを作る', 'touch hello.py'],
-      ['code', 'エディタで hello.py に書く', 'print("Hello World")'],
+      ['code', 'エディタで hello.py に書く', 'print("Hello, World!")'],
       ['term', '実行する', 'python3 hello.py'],
     ],
     java: [
       ['term', 'ファイルを作る (ファイル名とクラス名を同じにする)', 'touch Hello.java'],
-      ['code', 'エディタで Hello.java に書く', 'public class Hello {\n    public static void main(String[] args) {\n        System.out.println("Hello World");\n    }\n}'],
+      ['code', 'エディタで Hello.java に書く', 'public class Hello {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}'],
       ['term', 'コンパイルする (Hello.class ができる)', 'javac Hello.java'],
       ['term', '実行する (.class は付けない)', 'java Hello'],
     ],
     c: [
       ['term', 'ファイルを作る', 'touch hello.c'],
-      ['code', 'エディタで hello.c に書く', '#include <stdio.h>\n\nint main(void) {\n    printf("Hello World\\n");\n    return 0;\n}'],
+      ['code', 'エディタで hello.c に書く', '#include <stdio.h>\n\nint main(void) {\n    printf("Hello, World!\\n");\n    return 0;\n}'],
       ['term', 'コンパイルする (a.out ができる)', 'gcc hello.c'],
       ['term', '実行する (./ を付ける)', './a.out'],
     ],
     cpp: [
       ['term', 'ファイルを作る', 'touch hello.cpp'],
-      ['code', 'エディタで hello.cpp に書く', '#include <iostream>\n\nint main() {\n    std::cout << "Hello World" << std::endl;\n    return 0;\n}'],
+      ['code', 'エディタで hello.cpp に書く', '#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}'],
       ['term', 'コンパイルする (a.out ができる)', 'g++ hello.cpp'],
       ['term', '実行する (./ を付ける)', './a.out'],
     ],
     javascript: [
       ['term', 'ファイルを作る', 'touch hello.js'],
-      ['code', 'エディタで hello.js に書く', 'console.log("Hello World");'],
+      ['code', 'エディタで hello.js に書く', 'console.log("Hello, World!");'],
       ['term', 'Node.js で実行する', 'node hello.js'],
     ],
     ruby: [
       ['term', 'ファイルを作る', 'touch hello.rb'],
-      ['code', 'エディタで hello.rb に書く', 'puts "Hello World"'],
+      ['code', 'エディタで hello.rb に書く', 'puts "Hello, World!"'],
       ['term', '実行する', 'ruby hello.rb'],
     ],
     go: [
       ['term', 'ファイルを作る', 'touch hello.go'],
-      ['code', 'エディタで hello.go に書く', 'package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello World")\n}'],
+      ['code', 'エディタで hello.go に書く', 'package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, World!")\n}'],
       ['term', 'コンパイルして実行する', 'go run hello.go'],
     ],
     rust: [
       ['term', 'ファイルを作る', 'touch hello.rs'],
-      ['code', 'エディタで hello.rs に書く', 'fn main() {\n    println!("Hello World");\n}'],
+      ['code', 'エディタで hello.rs に書く', 'fn main() {\n    println!("Hello, World!");\n}'],
       ['term', 'コンパイルする (hello ができる)', 'rustc hello.rs'],
       ['term', '実行する (./ を付ける)', './hello'],
     ],
     php: [
       ['term', 'ファイルを作る', 'touch hello.php'],
-      ['code', 'エディタで hello.php に書く (<?php から始める)', '<?php\necho "Hello World\\n";'],
+      ['code', 'エディタで hello.php に書く (<?php から始める)', '<?php\necho "Hello, World!\\n";'],
       ['term', '実行する', 'php hello.php'],
     ],
   };
@@ -505,7 +505,7 @@
     writeln('Welcome to Ubuntu 24.04.1 LTS (GNU/Linux 6.8.0-45-generic x86_64)');
     writeln('');
     writeln(`Last login: ${d.toDateString().slice(0, 10)} ${d.toTimeString().slice(0, 8)} ${d.getFullYear()} from 192.168.0.10`);
-    writeln(`# ${lang.label} で Hello World を出力してみよう！ (困ったら help と入力)`, 't-hint');
+    writeln(`# ${lang.label} で Hello, World! を出力してみよう！ (困ったら help と入力)`, 't-hint');
   }
 
   // --- 入力 ---

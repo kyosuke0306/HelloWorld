@@ -1,5 +1,5 @@
 {
-  "name": "HelloWorld",
+  "name": "Hello, World!",
   "short_name": "HelloWorld",
   "start_url": "./",
   "display": "standalone",
